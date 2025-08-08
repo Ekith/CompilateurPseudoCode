@@ -1,6 +1,6 @@
 import sys, argparse, re
 
-from LexicalUnit import LexicalUnit, Character, Keyword, Symbol, Identifier, Integer, Fel
+from LexicalUnit import LexicalUnit, Character, Keyword, Symbol, Identifier, Integer, Fel, String, Float
 
 DEBUG = False
 
@@ -77,7 +77,8 @@ class LexicalAnalyser(object):
 				while colIndex<len(line) and (digit.match(c)):
 					n = 10*n + int(c)
 					colIndex = colIndex + 1
-					if colIndex < len(line): c = line[colIndex]
+					if colIndex < len(line):
+						c = line[colIndex]
 				unitValue = Integer(lineIndex, beginColIndex, colIndex-beginColIndex, n)
 			elif space.match(c):
 				colIndex = colIndex + 1
@@ -96,8 +97,40 @@ class LexicalAnalyser(object):
 				else: # It is an identifier
 					unitValue = Identifier(lineIndex, beginColIndex, len(ident), ident)
      
-     
-    
+			elif c == '"': # String literal
+				# It is either an identifier or a keyword
+				beginColIndex = colIndex
+				string = ''
+				is_escaped = False
+				while colIndex<len(line) and not is_escaped:
+					string = string + c
+					colIndex = colIndex + 1
+					if colIndex < len(line): 
+						c = line[colIndex]
+					if c == '"':
+						string += c
+						is_escaped = not is_escaped
+						colIndex = colIndex + 1 # Skip the closing quote
+
+				unitValue = String(lineIndex, beginColIndex, len(string), string)
+
+			elif c == "'": # String literal
+				# It is either an identifier or a keyword
+				beginColIndex = colIndex
+				string = ''
+				is_escaped = False
+				while colIndex<len(line) and not is_escaped:
+					string = string + c
+					colIndex = colIndex + 1
+					if colIndex < len(line): 
+						c = line[colIndex]
+					if c == "'":
+						string += c
+						is_escaped = not is_escaped
+						colIndex = colIndex + 1 # Skip the closing quote
+
+				unitValue = String(lineIndex, beginColIndex, len(string), string)
+
 			elif c == '-': # Subtraction
 				beginColIndex = colIndex
 				colIndex = colIndex + 1
@@ -236,6 +269,20 @@ class LexicalAnalyser(object):
 		else:
 			raise AnaLexException("Expecting symbol " + s + " <line "+str(self.lexical_units[self.lexical_unit_index].get_line_index())+", column "+str(self.lexical_units[self.lexical_unit_index].get_col_index())+"> !")	
 	
+	    ## Accepts a given = if it corresponds to the current lexical unit.
+        # @param s string containing the symbol
+        # @exception AnaLexException When the symbol is not found
+	def acceptString(self):
+		if not self.verify_index():
+			raise AnaLexException("Found end of entry while expecting a string !")
+		if self.lexical_units[self.lexical_unit_index].is_string():
+			self.lexical_unit_index += 1
+		else:
+			raise AnaLexException("Expecting string <line "+str(self.lexical_units[self.lexical_unit_index].get_line_index())+", column "+str(self.lexical_units[self.lexical_unit_index].get_col_index())+"> !")
+
+
+ 
+ 
         ## Tests if a given keyword corresponds to the current lexical unit.
         # @return True if the keyword is found
         # @exception AnaLexException When the end of entry is found
@@ -284,7 +331,17 @@ class LexicalAnalyser(object):
 			raise AnaLexException("Found end of entry while expecting symbol " + s + "!")
 		if self.lexical_units[self.lexical_unit_index].is_symbol(s):
 			return True
-		return False			
+		return False
+
+        ## Tests if a string corresponds to the current lexical unit.
+        # @return True if a string is found
+        # @exception AnaLexException When the end of entry is found
+	def isString(self):
+		if not self.verify_index():
+			raise AnaLexException("Found end of entry while expecting string!")
+		if self.lexical_units[self.lexical_unit_index].is_string():
+			return True
+		return False
 
         ## Returns the value of the current lexical unit
         # @return value of the current unit

@@ -11,11 +11,18 @@ Programme Exemple
 
     Variables : 
         a, b, c : entier
+        x : flottant
+        s, ss : chaine
 
 Debut Programme
     a = 10
     b = 20
     c = addition(a+b)
+
+    x = 1.25
+    s = "test"
+    ss = 'test2'
+
     afficher (c+0)
     test()
     afficher (123 + 45)

@@ -47,6 +47,12 @@ class LexicalUnit(object):
 		
 	def is_fel(self):
 		return False
+
+	def is_string(self):
+		return False
+
+	def is_float(self):
+		return False
 	
         ## Static method used to retreive a specific LexicalUnit from 
         # a line of text formatted by __str__
@@ -67,6 +73,10 @@ class LexicalUnit(object):
 			return Fel(fields[1], fields[2], fields[3], fields[4])
 		elif fields[0] == Integer.__class__.__name__:
 			return Integer(fields[1], fields[2], fields[3], fields[4])
+		elif fields[0] == String.__class__.__name__:
+			return String(fields[1], fields[2], fields[3], fields[4])
+		elif fields[0] == Float.__class__.__name__:
+			return Float(fields[1], fields[2], fields[3], fields[4])
 	
         ## Returns the object as a formatted string
 	def __str__(self):
@@ -144,4 +154,29 @@ class Fel(LexicalUnit):
         ## Return true since it is a Fel instance
 	def is_fel(self):
 		return True
-	
+
+
+## Class to represent Strings
+#
+# This class inherits from LexicalUnit.
+class String(LexicalUnit):
+	## The constructor
+	def __init__(self, l, c, ln, v):
+		super(String, self).__init__(l, c, ln, v)
+
+	## Return true since it is a string
+	def is_string(self):
+		return True
+
+
+## Class to represent Floats
+#
+# This class inherits from LexicalUnit.
+class Float(LexicalUnit):
+	## The constructor
+	def __init__(self, l, c, ln, v):
+		super(Float, self).__init__(l, c, ln, v)
+
+	## Return true since it is a float
+	def is_float(self):
+		return True
