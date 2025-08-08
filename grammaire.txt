@@ -124,6 +124,7 @@
 
 <valeur> ::= <entier> 
             | <valBool>
+            | <chaine>
 
 <valBool> ::= Vrai 
             | Faux
@@ -154,3 +155,8 @@
 
 <entier> ::= <chiffre> 
             | <entier> <chiffre>
+
+<flottant> ::= <entier>. <entier>
+
+<chaine> ::= " <listeLettreOuChiffre> "
+        | ' <listeLettreOuChiffre> '
