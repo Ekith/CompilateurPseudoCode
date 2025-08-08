@@ -1,0 +1,36 @@
+Programme Exemple
+    Procedure test () :
+        Debut
+            afficher (4+0)
+        Fin;
+
+    Fonction addition(a : entree entier, b : entree entier) -> entier :
+        Debut
+            Renvoyer a+b
+        Fin;
+
+    Variables : 
+        a, b, c : entier
+
+Debut Programme
+    a = 10
+    b = 20
+    c = addition(a+b)
+    afficher (c+0)
+    test()
+    afficher (123 + 45)
+
+    Tant que b infegal 40 Faire
+        b = b+10
+    Fin Tant que
+
+    Si b infegal 60 Alors
+        test()
+    Fin Si
+    Sinon
+        a = 10
+    Fin Sinon
+
+    lire(c)
+
+Fin Programme

@@ -1,0 +1,156 @@
+
+
+<programme> ::= <specifProgPrinc> <corpsProgPrinc>
+
+<specifProgPrinc> ::= Programme <identifiant>
+
+<corpsProgPrinc> ::= <partieDecla> Debut Programme <suiteInstr> Fin Programme
+                    | Debut Programme <suiteInstr> Fin Programme
+
+<partieDecla> ::= <listeDeclaOp> Variables : <listeDeclaVar>
+                | Variables : <listeDeclaVar>
+                | <listeDeclaOp>
+
+<listeDeclaOp> ::= <declaOp> ; <listeDeclaOp> 
+                | <declaOp> ;
+
+<declaOp> ::= <fonction>
+            | <procedure>
+
+<procedure> ::= Procedure <identifiant> <partieFormelle> : <corpsProc>
+
+<fonction> ::= Fonction <identifiant> <partieFormelle> -> <type> : <corpsFonct>
+
+<corpsProc> ::= Variables : <partieDeclaProc> Debut <suiteInstr> Fin
+                | Debut <suiteInstr> Fin
+
+<corpsFonct> ::= Variables : <partieDeclaFonc> Debut <suiteInstr> Fin
+                | Debut <suiteInstr> Fin
+
+<partieFormelle> ::= ( <listeSpecifFormelles> ) 
+                    | ( )
+
+<listeSpecifFormelles> ::= <specif> , <listeSpecifFormelles> 
+                        | <specif>
+
+<specif> ::= <listeIdentifiants> : <mode> <type>
+            | <listeIdentifiants> : <type>
+
+<mode> ::= entree
+        | entree sortie
+
+<type> ::= entier 
+        | booleen
+
+<partieDeclaProc> ::= <listeDeclaVar>
+
+<partieDeclaFonc> ::= <listeDeclaVar>
+
+<listeDeclaVar> ::= <declaVar> ; <listeDeclaVar> 
+                    | <declaVar>
+
+<declaVar> ::= <listeIdentifiants> : <type>
+
+<listeIdentifiants> ::= <identifiant> , <listeIdentifiants> 
+                        | <identifiant>
+
+<suiteInstrNonVide> ::= <instr> <suiteInstrNonVide> 
+                        | <instr>
+
+<suiteInstr> ::= <suiteInstrNonVide> 
+                | ε
+
+<instr> ::=  <boucle> 
+            | <condition> 
+            | <EntSort> 
+            | <retour> 
+            | <appelProc>
+            | <affectation>
+
+<appelProc> ::= <identifiant> ( <listeParam> ) 
+                | <identifiant> ( )
+
+<listeParam> ::= <expression> , <listeParam> 
+            | <expression>
+
+<affectation> ::= <identifiant> = <expression>
+
+<expression> ::= <expOu>
+
+<expOu> ::= <expOu> ou <expEt> 
+        | <expEt>
+
+<expEt> ::= <expEt> et <expComp> 
+        | <expComp>
+
+<expComp> ::= <expComp> <opComp> <expAd> 
+        | <expAd>
+
+<opComp> ::= egal 
+            | diff 
+            | inf 
+            | infegal 
+            | sup 
+            | supegal
+
+<expAd> ::= <expAd> <opAd> <explMult> 
+        | <explMult>
+
+<opAd> ::= + 
+        | -
+
+<explMult> ::= <explMult> <opMult> <prim> 
+        | <prim>
+
+<opMult> ::= * 
+            | /
+            | //
+            | modulo
+
+<prim> ::= <opUnaire> <elemPrim> 
+        | <elemPrim>
+
+<opUnaire> ::= + 
+            | - 
+            | non
+
+<elemPrim> ::= <valeur> 
+            | ( <expression> ) 
+            | <identifiant> 
+            | <appelFonct>
+
+<appelFonct> ::= <identifiant> ( <listeParam> ) 
+                | <identifiant> ( )
+
+<valeur> ::= <entier> 
+            | <valBool>
+
+<valBool> ::= Vrai 
+            | Faux
+
+<EntSort> ::= afficher ( <expression> )
+            | lire ( <identifiant> )
+
+<boucle> ::= Tant que <expression> Faire <suiteInstr> Fin Tant que
+
+<condition> ::= Si <expression> Alors <suiteInstr> Fin Si
+                | Si <expression> Alors <suiteInstr> Fin Si Sinon <suiteInstr> Fin Sinon
+
+
+<retour> ::= Renvoyer <expression>
+
+<identifiant> ::= <lettre> <listeLettreOuChiffre> 
+                | <lettre>
+
+<listeLettreOuChiffre> ::= <lettreOuChiffre> 
+                        | <listeLettreOuChiffre> <lettreOuChiffre>
+
+<lettreOuChiffre> ::= <lettre> 
+                    | <chiffre>
+
+<lettre> ::= a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
+
+<chiffre> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+<entier> ::= <chiffre> 
+            | <entier> <chiffre>
