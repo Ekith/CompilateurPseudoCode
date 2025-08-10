@@ -46,11 +46,9 @@ Symbol	12	12	1	,
 Identifier	12	14	1	c
 Symbol	12	16	1	:
 Keyword	12	18	6	entier
-Symbol	12	25	1	;
 Identifier	13	8	1	x
 Symbol	13	10	1	:
 Keyword	13	12	8	flottant
-Symbol	13	21	1	;
 Identifier	14	8	1	s
 Symbol	14	9	1	,
 Identifier	14	11	2	ss

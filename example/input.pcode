@@ -10,8 +10,8 @@ Programme Exemple
         Fin;
 
     Variables : 
-        a, b, c : entier ;
-        x : flottant ;
+        a, b, c : entier
+        x : flottant
         s, ss : chaine
 
 Debut Programme

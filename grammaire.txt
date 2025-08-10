@@ -46,7 +46,7 @@
 
 <partieDeclaFonc> ::= <listeDeclaVar>
 
-<listeDeclaVar> ::= <declaVar> ; <listeDeclaVar> 
+<listeDeclaVar> ::= <declaVar> <listeDeclaVar> 
                     | <declaVar>
 
 <declaVar> ::= <listeIdentifiants> : <type>

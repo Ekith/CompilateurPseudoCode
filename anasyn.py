@@ -226,10 +226,9 @@ class SyntaxAnalyser:
 		"""Parse a list of variable declarations."""
 		logger.debug("liste_decla_var()")
 		self.decla_var()
-		if self.lexical_analyser.isSymbol(";"):
-			self.lexical_analyser.acceptSymbol(";")
+		if not self.lexical_analyser.isKeyword("Debut"):
 			self.liste_decla_var()
-   
+
 	def decla_var(self):
 		"""Parse a variable declaration."""
 		logger.debug("decla_var()")
