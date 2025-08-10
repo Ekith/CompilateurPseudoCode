@@ -47,8 +47,15 @@ class SyntaxAnalyser:
 	def partie_decla(self):
 		"""Parse the declaration part of the program."""
 		logger.debug("partie_decla()")
-		if self.lexical_analyser.isKeyword("Procedure") or self.lexical_analyser.isKeyword("Fonction"):
+		if self.lexical_analyser.isKeyword("Prototypes"):
 			logger.debug("Parsing procedures or functions")
+			self.symbol_table.mode_prototype = True
+			self.lexical_analyser.acceptKeyword("Prototypes")
+			self.lexical_analyser.acceptSymbol(":")
+			self.liste_prototype()
+			self.symbol_table.mode_prototype = False
+			self.lexical_analyser.acceptKeyword("Definitions")
+			self.lexical_analyser.acceptSymbol(":")
 			self.liste_decla_op()
 		if self.lexical_analyser.isKeyword("Variables"):
 			logger.debug("Parsing variable declarations")
@@ -62,13 +69,46 @@ class SyntaxAnalyser:
         	not self.lexical_analyser.isKeyword("Variables"):
 			raise SyntaxError(message="Expected 'Procedure', 'Fonction', or 'Variables' at the beginning of the declaration part")
   		"""
-    
+
+	def liste_prototype(self):
+		"""Parse a list of prototypes."""
+		logger.debug("liste_prototype()")
+		self.prototype()
+		if not self.lexical_analyser.isKeyword("Definitions"):
+			self.liste_prototype()
+
+	def prototype(self):
+		"""Parse a function or procedure prototype."""
+		logger.debug("prototype()")
+		if self.lexical_analyser.isKeyword("Fonction"):
+			self.prototype_fonction()
+		elif self.lexical_analyser.isKeyword("Procedure"):
+			self.prototype_procedure()
+   
+	def prototype_fonction(self):
+		"""Parse a function prototype."""
+		logger.debug("prototype_fonction()")
+		self.lexical_analyser.acceptKeyword("Fonction")
+		ident = self.identifiant()
+		param = self.partie_formelle()
+		self.lexical_analyser.acceptSymbol("->")
+		type = self.type()
+		self.symbol_table.add_entry(ident, type, "function", param)
+		logger.debug(f"Function prototype: {ident}, return type: {type}, parameters: {param}")
+
+	def prototype_procedure(self):
+		logger.debug("prototype_procedure()")
+		self.lexical_analyser.acceptKeyword("Procedure")
+		ident = self.identifiant()
+		param = self.partie_formelle()
+		self.symbol_table.add_entry(ident, None, "procedure", param)
+		logger.debug(f"Procedure prototype: {ident}, parameters: {param}")
+
 	def liste_decla_op(self):
 		"""Parse a list of operator declarations."""
 		logger.debug("liste_decla_op()")
 		self.decla_op()
-		if self.lexical_analyser.isSymbol(";"):
-			self.lexical_analyser.acceptSymbol(";")
+		if self.lexical_analyser.isKeyword("Procedure") or self.lexical_analyser.isKeyword("Fonction"):
 			self.liste_decla_op()
 
 	def decla_op(self):
@@ -91,10 +131,7 @@ class SyntaxAnalyser:
 		param = self.partie_formelle()
 		self.lexical_analyser.acceptSymbol(":")
 
-		self.symbol_table.leave_scope()
-		self.symbol_table.add_entry(ident, None, "procedure", param)
 		logger.debug(f"Procedure declaration: {ident}, parameters: {param}")
-		self.symbol_table.enter_scope(ident)
   
 		self.corps_proc()
 		self.symbol_table.leave_scope()
@@ -114,11 +151,8 @@ class SyntaxAnalyser:
 		logger.debug(f"Function type: {type}")
 		self.lexical_analyser.acceptSymbol(":")
   
-		self.symbol_table.leave_scope()
 		logger.debug(f"Function type: {type}")
-		self.symbol_table.add_entry(ident, type, "function", param)
-		self.symbol_table.enter_scope(ident)
-  
+
 		self.corps_fonction()
 		logger.debug(f"Function declaration: {ident}, return type: {type}, parameters: {param}")
 		self.symbol_table.leave_scope()
@@ -175,9 +209,10 @@ class SyntaxAnalyser:
 		type = self.type()
 		logger.debug(f"Formal specification: {names}, type: {type}, mode: {mode if 'mode' in locals() else 'None'}")
 		res = []
-		for name in names:
-			self.symbol_table.add_entry(name, type, "variable", None, mode)
-			res.append(self.symbol_table.lookup(name))
+		if not self.symbol_table.mode_prototype:
+			for name in names:
+				self.symbol_table.add_entry(name, type, "variable", None, mode)
+				res.append(self.symbol_table.lookup(name))
 		return res
 
 	def mode(self):

@@ -7,12 +7,22 @@
 <corpsProgPrinc> ::= <partieDecla> Debut Programme <suiteInstr> Fin Programme
                     | Debut Programme <suiteInstr> Fin Programme
 
-<partieDecla> ::= <listeDeclaOp> Variables : <listeDeclaVar>
+<partieDecla> ::= Prototypes : <listePrototype> Definitions : <listeDeclaOp> Variables : <listeDeclaVar>
                 | Variables : <listeDeclaVar>
-                | <listeDeclaOp>
+                | Prototypes : <listePrototype> <listeDeclaOp>
 
-<listeDeclaOp> ::= <declaOp> ; <listeDeclaOp> 
-                | <declaOp> ;
+<listePrototype> ::= <prototype> <listePrototype>
+                  | <prototype>
+
+<prototype> ::= <prototypeFonction>
+                | <prototypeProcedure>
+
+<prototypeFonction> ::= Fonction <identifiant> <partieFormelle> -> <type>
+
+<prototypeProcedure> ::= Procedure <identifiant> <partieFormelle>
+
+<listeDeclaOp> ::= <declaOp> <listeDeclaOp> 
+                | <declaOp> 
 
 <declaOp> ::= <fonction>
             | <procedure>

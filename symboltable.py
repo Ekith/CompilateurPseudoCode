@@ -37,7 +37,7 @@ class SymbolTable:
     def __init__(self):
         self.entries = []       # Stocke les entrées de la table des symboles
         self.current_scope = "global"   # Scope où se trouve actuellement la table
-        
+        self.mode_prototype = False  # Indique si on est dans un prototype de fonction ou de procédure
 
 
     def enter_scope(self, scope_name):

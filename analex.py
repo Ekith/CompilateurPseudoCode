@@ -12,7 +12,7 @@ LEXICAL_UNIT_INTEGER			= "integer"
 LEXICAL_UNIT_FEL				= "fel"
 
 KEYWORDS  = [ \
-    "Programme", "Debut", "Fin", "Procedure", "Fonction", "Variables",
+    "Programme", "Debut", "Fin", "Procedure", "Fonction", "Variables", "Prototypes", "Definitions",
     "Si", "Sinon", "Alors", "Tant", "que", "Faire",
     "afficher", "lire", "Renvoyer",
     "entree", "entree sortie",

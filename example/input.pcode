@@ -1,13 +1,19 @@
 Programme Exemple
-    Procedure test () :
-        Debut
-            afficher (4+0)
-        Fin;
 
-    Fonction addition(a : entree entier, b : entree entier) -> entier :
-        Debut
-            Renvoyer a+b
-        Fin;
+    Prototypes :
+        Procedure test()
+        Fonction addition(a : entree entier, b : entree entier) -> entier
+
+    Definitions :
+        Procedure test () :
+            Debut
+                afficher (4+0)
+            Fin
+
+        Fonction addition(a : entree entier, b : entree entier) -> entier :
+            Debut
+                Renvoyer a+b
+            Fin
 
     Variables : 
         a, b, c : entier
