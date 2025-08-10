@@ -1,6 +1,6 @@
 import sys, argparse, re
 
-from LexicalUnit import LexicalUnit, Character, Keyword, Symbol, Identifier, Integer, Fel, String, Float
+from src.lexicalunit import LexicalUnit, Character, Keyword, Symbol, Identifier, Integer, Fel, String, Float
 
 DEBUG = False
 

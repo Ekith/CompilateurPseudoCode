@@ -1,6 +1,6 @@
-from analex import LexicalAnalyser
-from anasyn import SyntaxAnalyser
-from symboltable import SymbolTable
+from src.analex import LexicalAnalyser
+from src.anasyn import SyntaxAnalyser
+from src.symboltable import SymbolTable
 
 import logging
 
