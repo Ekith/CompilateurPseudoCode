@@ -201,8 +201,14 @@ class SyntaxAnalyser:
 		elif self.lexical_analyser.isKeyword("booleen"):
 			self.lexical_analyser.acceptKeyword("booleen")
 			type = "booleen"
+		elif self.lexical_analyser.isKeyword("chaine"):
+			self.lexical_analyser.acceptKeyword("chaine")
+			type = "chaine"
+		elif self.lexical_analyser.isKeyword("flottant"):
+			self.lexical_analyser.acceptKeyword("flottant")
+			type = "flottant"
 		else:
-			raise SyntaxError("Expected a type keyword (entier, booleen)")
+			raise SyntaxError("Expected a type keyword (entier, booleen, chaine, flottant)")
 		logger.debug(f"Type: {type}")
 		return type
 
@@ -319,8 +325,9 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptKeyword("ou")
 			logger.debug("Found 'ou' keyword")
 			value_type_B = self.exp_ou()
-			if value_type_A != value_type_B and value_type_B != "booleen":
-				raise TypeError("Incompatible types")
+			if value_type_A != "booleen" or value_type_B != "booleen":
+				logger.debug(f"exp_ou() found incompatible types")
+				raise TypeError(f"Incompatible types: {value_type_A} and {value_type_B}")
 			value_type = "booleen"
 		# logger.debug(f"exp_ou() returns type: {value_type}")
 		return value_type
@@ -334,8 +341,9 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptKeyword("et")
 			logger.debug("Found 'et' keyword")
 			value_type_B = self.exp_et()
-			if value_type_A != value_type_B and value_type_B != "booleen":
-				raise TypeError("Incompatible types")
+			if value_type_A != "booleen" or value_type_B != "booleen":
+				logger.debug(f"exp_et() found incompatible types")
+				raise TypeError(f"Incompatible types: {value_type_A} and {value_type_B}")
 			value_type = "booleen"
 		# logger.debug(f"exp_et() returns type: {value_type}")
 		return value_type
@@ -348,8 +356,9 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.op_comp()
 			value_type_B = self.exp_comp()
-			if value_type_A != value_type_B:
-				raise TypeError("Incompatible types")
+			if not self.type_compatible(value_type_A, value_type_B):
+				logger.debug(f"exp_comp() found incompatible types")
+				raise TypeError(f"Incompatible types: {value_type_A} and {value_type_B}")
 			value_type = "booleen"
    
 		elif self.lexical_analyser.isKeyword("inf") or self.lexical_analyser.isKeyword("infegal") or \
@@ -357,8 +366,9 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.op_comp()
 			value_type_B = self.exp_comp()
-			if value_type_A != value_type_B and value_type_B != "entier":
-				raise TypeError("Incompatible types")
+			if not self.type_compatible(value_type_A, value_type_B):
+				logger.debug(f"exp_comp() found incompatible types")
+				raise TypeError(f"Incompatible types: {value_type_A} and {value_type_B}")
 			value_type = "booleen"
 		# logger.debug(f"exp_comp() returns type: {value_type}")
 		return value_type
@@ -395,9 +405,13 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.op_ad()
 			value_type_B = self.exp_ad()
-			if value_type_A != value_type_B and value_type_B != "entier":
-				raise TypeError("Incompatible types")
-			value_type = "entier"
+			if not self.verify_types(value_type_A, value_type_B, ["number"]):
+				logger.debug(f"exp_ad() found incompatible types")
+				raise TypeError(f"Incompatible types: {value_type_A} and {value_type_B}")
+			if value_type_A == "flottant" or value_type_B == "flottant":
+				value_type = "flottant"
+			else:
+				value_type = "entier"
 		# logger.debug(f"exp_ad() returns type: {value_type}")
 		return value_type
 
@@ -421,9 +435,13 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.op_mult()
 			value_type_B = self.exp_mult()
-			if value_type_A != value_type_B and value_type_B != "entier":
-				raise TypeError("Incompatible types")
-			value_type = "entier"
+			if self.verify_types(value_type_A, value_type_B, ["number"]):
+				logger.debug(f"exp_mult() found incompatible types")
+				raise TypeError(f"Incompatible types: {value_type_A} and {value_type_B}")
+			if value_type_A == "flottant" or value_type_B == "flottant":
+				value_type = "flottant"
+			else:
+				value_type = "entier"
 		# logger.debug(f"exp_mult() returns type: {value_type}")
 		return value_type
 
@@ -473,7 +491,10 @@ class SyntaxAnalyser:
 		"""Parse an elementary primary expression."""
 		logger.debug("elem_prim()")
 		lexical_analyser_copy : LexicalAnalyser = copy.deepcopy(self.lexical_analyser)
-		if self.lexical_analyser.isInteger() or self.lexical_analyser.isKeyword("Vrai") or self.lexical_analyser.isKeyword("Faux"):
+		if self.lexical_analyser.isInteger() or \
+      		self.lexical_analyser.isBoolean() or \
+            self.lexical_analyser.isFloat2() or \
+            self.lexical_analyser.isString():
 			value_type = self.valeur()
 		elif self.lexical_analyser.isSymbol("("):
 			self.lexical_analyser.acceptSymbol("(")
@@ -514,7 +535,11 @@ class SyntaxAnalyser:
 	def valeur(self) -> str:
 		"""Parse a value."""
 		logger.debug("valeur()")
-		if self.lexical_analyser.isInteger():
+		if self.lexical_analyser.isFloat2():
+			self.flottant()
+			logger.debug("Value: float")
+			return "flottant"
+		elif self.lexical_analyser.isInteger():
 			self.entier()
 			logger.debug("Value: integer")
 			return "entier"
@@ -522,6 +547,10 @@ class SyntaxAnalyser:
 			self.val_bool()
 			logger.debug("Value: boolean")
 			return "booleen"
+		elif self.lexical_analyser.isString():
+			self.chaine()
+			logger.debug("Value: string")
+			return "chaine"
 		else:
 			raise SyntaxError("Expected a value (entier or booleen)")
 
@@ -589,8 +618,17 @@ class SyntaxAnalyser:
 		"""Parse a return statement."""
 		logger.debug("retour()")
 		self.lexical_analyser.acceptKeyword("Renvoyer")
-		self.expression()
-  
+		value_type = self.expression()
+		function_name = self.symbol_table.current_scope
+		entry = self.symbol_table.lookup(function_name, "global")
+		type_function = entry.type
+		if type_function is None:
+			raise SyntaxError(f"Function '{function_name}' is not declared or has no return type")
+		elif type_function != value_type:
+			raise TypeError(f"Return type '{value_type}' does not match function return type '{type_function}'")
+		logger.debug(f"Return statement in function '{function_name}': {value_type}")
+
+
 	def identifiant(self) -> str:
 		"""Parse an identifier."""
 		logger.debug("identifiant()")
@@ -611,6 +649,35 @@ class SyntaxAnalyser:
 			logger.debug("No integer value found")
 			raise SyntaxError("Expected an integer")
 
+	def flottant(self) -> float:
+		"""Parse a float."""
+		logger.debug("flottant()")
+		integer_part = self.lexical_analyser.acceptInteger()
+		if not integer_part:
+			logger.debug("No integer part found")
+			raise SyntaxError("Expected an integer part")
+		logger.debug(f"Integer part: {integer_part}")
+
+		if self.lexical_analyser.isSymbol("."):
+			self.lexical_analyser.acceptSymbol(".")
+			fractional_part = self.lexical_analyser.acceptInteger()
+			if not fractional_part:
+				logger.debug("No fractional part found")
+				raise SyntaxError("Expected a fractional part")
+			logger.debug(f"Fractional part: {fractional_part}")
+			return float(f"{integer_part}.{fractional_part}")
+		return float(integer_part)
+
+	def chaine(self) -> str:
+		"""Parse a string."""
+		logger.debug("chaine()")
+		value = self.lexical_analyser.acceptString()
+		logger.debug(f"String value: {value}")
+		if not value:
+			logger.debug("No string value found")
+			raise SyntaxError("Expected a string")
+		return value
+
 	def analyse(self):
 		"""Start the syntax analysis."""
 		try:
@@ -623,4 +690,29 @@ class SyntaxAnalyser:
 			logger.error(f"Unexpected error during syntax analysis: {e}")
 			raise e
 
+	def type_compatible(self, type_A: str, type_B: str) -> bool:
+		"""Check if two types are compatible."""
+		logger.debug(f"type_compatible(): {type_A} vs {type_B}")
+		if type_A == type_B:
+			return True
+		if type_A == "entier" and type_B == "flottant":
+			return True
+		if type_A == "flottant" and type_B == "entier":
+			return True
+		return False
 
+	def verify_types(self, type_A: str, type_B: str, wanted_type: list) -> bool:
+		"""Verify if two types are compatible. booleen, nombre->(entier, flottant), chaine"""
+		if type_A == "entier" or type_A == "flottant":
+			v_type_A = "number"
+		else:
+			v_type_A = type_A
+
+		if type_B == "entier" or type_B == "flottant":
+			v_type_B = "number"
+		else:
+			v_type_B = type_B
+
+		if v_type_A == v_type_B and v_type_A in wanted_type:
+			return True
+		return False

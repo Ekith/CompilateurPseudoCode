@@ -16,7 +16,7 @@ KEYWORDS  = [ \
     "Si", "Sinon", "Alors", "Tant", "que", "Faire",
     "afficher", "lire", "Renvoyer",
     "entree", "entree sortie",
-    "entier", "booleen",
+    "entier", "booleen", "flottant", "chaine",
     "Vrai", "Faux",
     "egal", "diff", "inf", "infegal", "sup", "supegal",
     "ou", "et", "non", "modulo"
@@ -24,7 +24,7 @@ KEYWORDS  = [ \
 
 
 SYMBOLS = [
-    "->", "=", "+", "-", "*", "/", "(", ")", ",", ";", ":"
+    "->", "=", "+", "-", "*", "/", "(", ")", ",", ";", ":", "."
 ]
 
 class AnaLexException(Exception):
@@ -276,7 +276,9 @@ class LexicalAnalyser(object):
 		if not self.verify_index():
 			raise AnaLexException("Found end of entry while expecting a string !")
 		if self.lexical_units[self.lexical_unit_index].is_string():
+			value = self.lexical_units[self.lexical_unit_index].get_value()
 			self.lexical_unit_index += 1
+			return value
 		else:
 			raise AnaLexException("Expecting string <line "+str(self.lexical_units[self.lexical_unit_index].get_line_index())+", column "+str(self.lexical_units[self.lexical_unit_index].get_col_index())+"> !")
 
@@ -340,6 +342,22 @@ class LexicalAnalyser(object):
 		if not self.verify_index():
 			raise AnaLexException("Found end of entry while expecting string!")
 		if self.lexical_units[self.lexical_unit_index].is_string():
+			return True
+		return False
+
+	def isFloat2(self):
+		if not self.verify_index():
+			raise AnaLexException("Found end of entry while expecting float!")
+		if self.lexical_units[self.lexical_unit_index].is_integer():
+			if self.lexical_units[self.lexical_unit_index+1].is_symbol("."):
+				if self.lexical_units[self.lexical_unit_index+2].is_integer():
+					return True
+		return False
+
+	def isBoolean(self):
+		if not self.verify_index():
+			raise AnaLexException("Found end of entry while expecting boolean!")
+		if self.lexical_units[self.lexical_unit_index].is_keyword("Vrai") or self.lexical_units[self.lexical_unit_index].is_keyword("Faux"):
 			return True
 		return False
 

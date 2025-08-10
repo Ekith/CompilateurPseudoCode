@@ -80,8 +80,7 @@ class SymbolTable:
                 raise Exception(f"Type mismatch for '{ident}' in scope '{self.current_scope}' expected '{self.lookup(ident).type}' found '{type}'")
         else:
             raise Exception(f"'{ident}' is not declared in scope '{self.current_scope}'")
-    
-    
+
     def __str__(self):
         result = "===============Symbol Table:===============\n"
         for entry in self.entries:

@@ -30,7 +30,7 @@ def main():
     symbol_table = SymbolTable()
     syntaxys_analyser = SyntaxAnalyser(lexical_analyser=lexical_analyser, symbol_table=symbol_table)
     try:
-        # syntaxys_analyser.analyse()
+        syntaxys_analyser.analyse()
 
         with open(symbolTableFilename, 'w') as output_file:
             output_file.write(str(symbol_table))

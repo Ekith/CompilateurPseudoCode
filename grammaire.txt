@@ -157,6 +157,7 @@
             | <entier> <chiffre>
 
 <flottant> ::= <entier>. <entier>
+           | <entier> 
 
 <chaine> ::= " <listeLettreOuChiffre> "
         | ' <listeLettreOuChiffre> '
