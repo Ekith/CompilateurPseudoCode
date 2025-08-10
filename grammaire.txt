@@ -10,6 +10,7 @@
 <partieDecla> ::= Prototypes : <listePrototype> Definitions : <listeDeclaOp> Variables : <listeDeclaVar>
                 | Variables : <listeDeclaVar>
                 | Prototypes : <listePrototype> <listeDeclaOp>
+                | ε
 
 <listePrototype> ::= <prototype> <listePrototype>
                   | <prototype>

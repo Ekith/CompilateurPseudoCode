@@ -27,8 +27,96 @@ Ce projet est un compilateur pour un langage de pseudo code. Le but du langage e
 Pour utiliser le compilateur, il suffit de fournir un fichier contenant du pseudo code. Le compilateur analysera le code et signalera les erreurs éventuelles.
 
 
-## Exemples
+## Exemples
 
 Vous trouverez un exemple de code en pseudo code dans le fichier `example/input.pcode`.
 Le résultat de l'analyse lexicale sera écrit dans `example/output.txt` et la table des symboles dans `example/symbol_table.txt`.
+
+## Utilisation des instructions
+
+### Corps principal du programme
+
+```pcode
+Programme <nom du programme>
+    <Optionnel>
+Debut Programme
+    instruction1
+    instruction2
+Fin Programme
+```
+
+Vous pouvez ajouter des instructions supplémentaires dans le corps principal du programme. Soit l'un, soit l'autre soit les 2 mais dans cet ordre.
+
+#### Déclarations des fonctions/procédures
+
+```pcode
+Prototypes :
+    Fonction <nom de la fonction>(<paramètres>) -> <type de retour>
+    Procedure <nom de la fonction>(<paramètres>)
+
+Definitions :
+    Fonction <nom de la fonction>(<paramètres>) -> <type de retour> :
+    Debut
+        instruction1
+        instruction2
+    Fin
+
+    Procedure <nom de la fonction>(<paramètres>) :
+    Debut
+        instruction1
+        instruction2
+    Fin
+
+```
+
+#### Déclarations des variables
+
+```pcode
+Variables :
+    <nom de la variable> : <type de la variable>
+    <liste de variables> : <type des variables>
+```
+
+### Boucles
+
+```pcode
+Tant que <condition> Faire
+    instruction1
+    instruction2
+Fin Tant que
+```
+
+### Conditions
+
+```pcode
+Si <condition> Alors
+    instruction1
+    instruction2
+Fin Si
+```
+
+```pcode
+Si <condition> Alors
+    instruction1
+    instruction2
+Fin Si
+Sinon
+    instruction3
+Fin Sinon
+```
+
+### Entrée-Sortie
+Pour afficher une variable :
+```pcode
+afficher(<expression>)
+```
+Pour entrer une valeur dans une variable :
+```pcode
+lire(<variable>)
+```
+
+### Comparaison
+
+Il a été décidé dans ce langage de s'affranchir des opérateurs de comparaison traditionnels tels que "==" et "!=". À la place, les mots clés "egal" et "diff" sont utilisés pour effectuer des comparaisons d'égalité et d'inégalité.
+De même, les mots clés "inf", "infegal", "sup" et "supegal" sont utilisés pour les comparaisons de valeurs numériques.
 

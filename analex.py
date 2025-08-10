@@ -69,7 +69,7 @@ class LexicalAnalyser(object):
 					return
 				else:
 					# record as character
-					unitValue = Character(lineIndex, colIndex-1, 1, "/")
+					unitValue = Symbol(lineIndex, colIndex-1, 1, "/")
 			elif digit.match(c):
 				# It is a number 
 				beginColIndex = colIndex
