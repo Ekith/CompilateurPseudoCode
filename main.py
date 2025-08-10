@@ -1,9 +1,9 @@
 import argparse, os, logging
 
 
-from analex import LexicalAnalyser
-from anasyn import SyntaxAnalyser
-from symboltable import SymbolTable
+from src.analex import LexicalAnalyser
+from src.anasyn import SyntaxAnalyser
+from src.symboltable import SymbolTable
 
 def main(input_file, symbol_table_file=None, lexical_analysis_file=None, output_file=None):
     

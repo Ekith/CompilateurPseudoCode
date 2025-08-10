@@ -1,5 +1,5 @@
-from analex import LexicalAnalyser
-from symboltable import SymbolTable
+from src.analex import LexicalAnalyser
+from src.symboltable import SymbolTable
 
 import logging
 import copy
