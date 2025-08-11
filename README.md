@@ -9,7 +9,8 @@ Ce projet est un compilateur pour un langage de pseudo code. Le but du langage e
 - `analex.py`: Contient l'analyseur lexical.
 - `anasyn.py`: Contient l'analyseur syntaxique.
 - `symboltable.py`: Contient la table des symboles.
-- `main.py`: Point d'entrée dau compilateur. Il permet d'exécuter le processus de compilation sur le fichier `example/input.pcode`. Il génère un fichier `example/output.txt` contenant la sortie de l'analyseur lexical ainsi qu'un fichier `example/symbol_table.txt` pour la table des symboles.
+- `main_test.py`: Il permet d'exécuter le processus de compilation sur le fichier `example/input.pcode`. Il génère un fichier `example/output.txt` contenant la sortie de l'analyseur lexical ainsi qu'un fichier `example/symbol_table.txt` pour la table des symboles.
+- `main.py`: Point d'entrée du compilateur.
 
 ## Fonctionnalités
 
@@ -26,6 +27,14 @@ Ce projet est un compilateur pour un langage de pseudo code. Le but du langage e
 
 Pour utiliser le compilateur, il suffit de fournir un fichier contenant du pseudo code. Le compilateur analysera le code et signalera les erreurs éventuelles.
 
+```bash
+./pcodeCompiler.sh input_file
+```
+Options :
+- `-o <fichier>` : Spécifie le fichier de sortie.
+- `-st <fichier>` : Spécifie le fichier de la table des symboles.
+- `-al <fichier>` : Spécifie le fichier de sortie de l'analyse lexicale.
+- `-h` : Affiche l'aide.
 
 ## Exemples
 
