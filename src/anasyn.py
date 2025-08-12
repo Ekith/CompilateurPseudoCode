@@ -640,8 +640,16 @@ class SyntaxAnalyser:
 			value_type = self.valeur()
 		elif self.lexical_analyser.isSymbol("("):
 			self.lexical_analyser.acceptSymbol("(")
+
+			# Génération du code pour le cas d'un parenthèsage
+			self.code_generator.write("(")
+   
 			value_type = self.expression()
 			self.lexical_analyser.acceptSymbol(")")
+
+			# Génération du code pour le cas d'un parenthèsage
+			self.code_generator.write(")")
+
 		elif lexical_analyser_copy.isIdentifier():
 			lexical_analyser_copy.acceptIdentifier()
 			if lexical_analyser_copy.isSymbol("("):
@@ -654,6 +662,10 @@ class SyntaxAnalyser:
 				if entry is None:
 					raise SyntaxError(f"Identifier '{name}' is not declared")
 				value_type = entry.type
+
+				# Génération du code pour l'identifiant
+				self.code_generator.write(name)
+
 		else:
 			raise SyntaxError("Expected a primary expression (value, identifier, or function call)")
 		logger.debug(f"Elementary primary expression type: {value_type}")
