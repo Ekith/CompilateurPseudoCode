@@ -1,10 +1,11 @@
 from src.analex import LexicalAnalyser
 
+import os
 
 class CodeGenerator:
     
     def __init__(self, output_file):
-        self.output_file = output_file
+        self.output_file = os.path.abspath(output_file)
 
         self.number_of_tabs = 0
 
@@ -77,3 +78,11 @@ class CodeGenerator:
         if value in keywords:
             return keywords[value]
         return value
+    
+    def delete_file(self):
+        os.remove(self.output_file)
+
+    def set_output_file(self, output_file):
+        self.output_file = os.path.abspath(output_file)
+        with open(self.output_file, 'w') as f:
+            f.write("")

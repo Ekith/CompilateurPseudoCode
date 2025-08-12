@@ -770,7 +770,15 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptSymbol("(")
 
 			# Génération du code pour l'affichage
-			self.code_generator.write("printf(")  
+			self.code_generator.write("printf(")
+			syntax_analyser_copy : SyntaxAnalyser = copy.deepcopy(self)
+			syntax_analyser_copy.code_generator.set_output_file("tmp")
+			cg_type = syntax_analyser_copy.expression()
+			self.code_generator.write("\"")
+			self.code_generator.write(self.code_generator.association_keyword("print_" + cg_type))
+			self.code_generator.write("\",")
+			syntax_analyser_copy.code_generator.delete_file()
+			syntax_analyser_copy = None
 
 			value_type = self.expression()
 
