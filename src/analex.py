@@ -368,13 +368,17 @@ class LexicalAnalyser(object):
 
 		## Returns the current lexical unit
 		# @return current lexical unit
-	def get_current_unit(self):
+	def get_current_unit(self) -> LexicalUnit:
 		return self.lexical_units[self.lexical_unit_index]
 
         ## Initializes the lexical analyser
 	def init_analyser(self):
 		self.lexical_unit_index = 0
-	
+
+	def next_unit(self) -> LexicalUnit:
+		self.lexical_unit_index += 1
+		return self.get_current_unit()
+
 ########################################################################				 		 
 
 ## Tests if a keyword is in the table of keywords

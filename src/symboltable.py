@@ -87,3 +87,7 @@ class SymbolTable:
             result += str(entry) + "\n"
         result += "===========================================\n"
         return result
+
+    def save_to_file(self):
+        with open("example/symbol_table.txt", 'w') as f:
+            f.write(str(self))

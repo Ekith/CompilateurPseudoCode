@@ -1,5 +1,6 @@
 from src.analex import LexicalAnalyser
 from src.symboltable import SymbolTable
+from src.codegenerator import CodeGenerator
 
 import logging
 import copy
@@ -21,7 +22,9 @@ class SyntaxAnalyser:
 		self.lexical_analyser : LexicalAnalyser = lexical_analyser
 		self.symbol_table : SymbolTable = symbol_table
 
- 
+		self.code_generator = None
+		self.initialize_code_generator()
+
 	def programme(self):
 		"""Parse a program."""
 		logger.debug("programme()")
@@ -54,6 +57,7 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_prototype()
 			self.symbol_table.mode_prototype = False
+			self.symbol_table.save_to_file()
 			self.lexical_analyser.acceptKeyword("Definitions")
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_decla_op()
@@ -90,19 +94,40 @@ class SyntaxAnalyser:
 		logger.debug("prototype_fonction()")
 		self.lexical_analyser.acceptKeyword("Fonction")
 		ident = self.identifiant()
+		self.symbol_table.enter_scope(ident)
 		param = self.partie_formelle()
+		self.symbol_table.leave_scope()
 		self.lexical_analyser.acceptSymbol("->")
 		type = self.type()
 		self.symbol_table.add_entry(ident, type, "function", param)
 		logger.debug(f"Function prototype: {ident}, return type: {type}, parameters: {param}")
 
+		# Génération du code pour le prototype de fonction
+		c_type = self.code_generator.association_keyword(type)
+		self.code_generator.write(f"{c_type} {ident}(")
+		for para in param:
+			p_type = self.code_generator.association_keyword(para.type)
+			self.code_generator.write(f"{p_type} {para.name}, ")
+		self.code_generator.write(");")
+
 	def prototype_procedure(self):
 		logger.debug("prototype_procedure()")
 		self.lexical_analyser.acceptKeyword("Procedure")
 		ident = self.identifiant()
+		self.symbol_table.enter_scope(ident)
 		param = self.partie_formelle()
+		self.symbol_table.leave_scope()
 		self.symbol_table.add_entry(ident, None, "procedure", param)
 		logger.debug(f"Procedure prototype: {ident}, parameters: {param}")
+
+		# Génération du code pour le prototype de procédure
+		c_type = self.code_generator.association_keyword("vide")
+		self.code_generator.write(f"{c_type} {ident}(")
+		for para in param:
+			p_type = self.code_generator.association_keyword(para.type)
+			self.code_generator.write(f"{p_type} {para.name}, ")
+		self.code_generator.write(");")
+
 
 	def liste_decla_op(self):
 		"""Parse a list of operator declarations."""
@@ -209,7 +234,7 @@ class SyntaxAnalyser:
 		type = self.type()
 		logger.debug(f"Formal specification: {names}, type: {type}, mode: {mode if 'mode' in locals() else 'None'}")
 		res = []
-		if not self.symbol_table.mode_prototype:
+		if self.symbol_table.mode_prototype:
 			for name in names:
 				self.symbol_table.add_entry(name, type, "variable", None, mode)
 				res.append(self.symbol_table.lookup(name))
@@ -750,3 +775,15 @@ class SyntaxAnalyser:
 		if v_type_A == v_type_B and v_type_A in wanted_type:
 			return True
 		return False
+
+	def initialize_code_generator(self):
+		"""Initialize the code generator."""
+		self.code_generator = CodeGenerator("output_code.txt")
+
+		str = """#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+"""
+
+		self.code_generator.write(str)
