@@ -52,6 +52,7 @@ class CodeGenerator:
             "booleen": "bool",
             "chaine": "char*",
             "flottant": "float",
+            "vide" : "void",
             "infeg" : "<=",
             "inf" : "<",
             "sup" : ">",
@@ -61,8 +62,8 @@ class CodeGenerator:
             "et" : "&&",
             "ou" : "||",
             "non" : "!",
-            "vide" : "void",
-            
+            "modulo" : "%",
+
             "print_entier" : "%d",
             "print_booleen" : "%d",
             "print_chaine" : "%s",

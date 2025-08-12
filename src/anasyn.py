@@ -438,6 +438,10 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.lexical_analyser.acceptKeyword("ou")
 			logger.debug("Found 'ou' keyword")
+   
+			# Génération du "ou" de l'expression
+			self.code_generator.write("||")
+   
 			value_type_B = self.exp_ou()
 			if value_type_A != "booleen" or value_type_B != "booleen":
 				logger.debug(f"exp_ou() found incompatible types")
@@ -454,6 +458,10 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.lexical_analyser.acceptKeyword("et")
 			logger.debug("Found 'et' keyword")
+
+			# Génération du "et" de l'expression
+			self.code_generator.write("&&")
+
 			value_type_B = self.exp_et()
 			if value_type_A != "booleen" or value_type_B != "booleen":
 				logger.debug(f"exp_et() found incompatible types")
@@ -490,6 +498,7 @@ class SyntaxAnalyser:
 	def op_comp(self):
 		"""Parse a comparison operator."""
 		logger.debug("op_comp()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isKeyword("egal"):
 			self.lexical_analyser.acceptKeyword("egal")
 			logger.debug("Found 'egal' keyword")
@@ -510,6 +519,10 @@ class SyntaxAnalyser:
 			logger.debug("Found 'supegal' keyword")
 		else:
 			raise SyntaxError("Expected a relational operator")
+
+		# Génération du code pour l'opérateur de comparaison
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
 
 	def exp_ad(self) -> str:
 		"""Parse the addition level of expressions."""
@@ -532,6 +545,7 @@ class SyntaxAnalyser:
 	def op_ad(self):
 		"""Parse an additive operator."""
 		logger.debug("op_ad()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isSymbol("+"):
 			self.lexical_analyser.acceptSymbol("+")
 			logger.debug("Found '+' symbol")
@@ -540,6 +554,10 @@ class SyntaxAnalyser:
 			logger.debug("Found '-' symbol")
 		else:
 			raise SyntaxError("Expected an additive operator")
+
+		# Génération du code pour l'opérateur d'addition
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
 
 	def exp_mult(self) -> str:
 		"""Parse the multiplication level of expressions."""
@@ -562,6 +580,7 @@ class SyntaxAnalyser:
 	def op_mult(self):
 		"""Parse a multiplicative operator."""
 		logger.debug("op_mult()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isSymbol("*"):
 			self.lexical_analyser.acceptSymbol("*")
 			logger.debug("Found '*' symbol")
@@ -577,6 +596,10 @@ class SyntaxAnalyser:
 		else:
 			raise SyntaxError("Expected a multiplicative operator")
 
+		# Génération du code pour l'opérateur de multiplication
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
+
 	def prim(self):
 		"""Parse a primary expression."""
 		logger.debug("prim()")
@@ -589,6 +612,7 @@ class SyntaxAnalyser:
 	def op_unaire(self):
 		"""Parse a unary operator."""
 		logger.debug("op_unaire()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isSymbol("+"):
 			self.lexical_analyser.acceptSymbol("+")
 			logger.debug("Found '+' symbol")
@@ -600,6 +624,10 @@ class SyntaxAnalyser:
 			logger.debug("Found 'non' keyword")
 		else:
 			raise SyntaxError("Expected a unary operator")
+
+		# Génération du code pour l'opérateur unaire
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
 
 	def elem_prim(self) -> str:
 		"""Parse an elementary primary expression."""
