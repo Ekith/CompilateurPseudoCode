@@ -757,6 +757,10 @@ class SyntaxAnalyser:
 		"""Parse a return statement."""
 		logger.debug("retour()")
 		self.lexical_analyser.acceptKeyword("Renvoyer")
+
+		# Génération du code pour l'instruction de retour
+		self.code_generator.write("return ")
+
 		value_type = self.expression()
 		function_name = self.symbol_table.current_scope
 		entry = self.symbol_table.lookup(function_name, "global")
@@ -767,6 +771,8 @@ class SyntaxAnalyser:
 			raise TypeError(f"Return type '{value_type}' does not match function return type '{type_function}'")
 		logger.debug(f"Return statement in function '{function_name}': {value_type}")
 
+		# Génération du code pour la fin de l'instruction de retour
+		self.code_generator.write(";")
 
 	def identifiant(self) -> str:
 		"""Parse an identifier."""
