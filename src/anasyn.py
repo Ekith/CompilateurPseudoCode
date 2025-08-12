@@ -722,16 +722,36 @@ class SyntaxAnalyser:
 		"""Parse a condition."""
 		logger.debug("condition()")
 		self.lexical_analyser.acceptKeyword("Si")
+
+		# Génération du code pour la condition
+		self.code_generator.write("if (")
+  
 		self.expression()
+
+		# Génération du code pour la fin de la condition
+		self.code_generator.write(") {")
+
 		self.lexical_analyser.acceptKeyword("Alors")
 		self.suite_instr()
 		self.lexical_analyser.acceptKeyword("Fin")
 		self.lexical_analyser.acceptKeyword("Si")
+
+		# Génération du code pour la fin de la condition
+		self.code_generator.write("}")
+
 		if self.lexical_analyser.isKeyword("Sinon"):
+
+			# Génération du code pour le cas "Sinon"
+			self.code_generator.write("else {")
+
 			self.lexical_analyser.acceptKeyword("Sinon")
-			self.suite_instr()
-		self.lexical_analyser.acceptKeyword("Fin")
-		self.lexical_analyser.acceptKeyword("Sinon")
+			self.suite_instr()   
+			self.lexical_analyser.acceptKeyword("Fin")
+			self.lexical_analyser.acceptKeyword("Sinon")
+
+			# Génération du code pour la fin du cas "Sinon"
+			self.code_generator.write("}")
+
     
 	def retour(self):
 		"""Parse a return statement."""
