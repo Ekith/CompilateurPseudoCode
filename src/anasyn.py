@@ -270,17 +270,16 @@ class SyntaxAnalyser:
 	def specif(self):
 		"""Parse a formal specification."""
 		logger.debug("specif()")
-		names = self.liste_identifiants() # List of identifiers
+		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol(":")
 		if self.lexical_analyser.isKeyword("entree"):
 			mode = self.mode()
 		type = self.type()
-		logger.debug(f"Formal specification: {names}, type: {type}, mode: {mode if 'mode' in locals() else 'None'}")
+		logger.debug(f"Formal specification: {name}, type: {type}, mode: {mode if 'mode' in locals() else 'None'}")
 		res = []
 		if self.symbol_table.mode_prototype:
-			for name in names:
-				self.symbol_table.add_entry(name, type, "variable", None, mode)
-				res.append(self.symbol_table.lookup(name))
+			self.symbol_table.add_entry(name, type, "variable", None, mode)
+			res.append(self.symbol_table.lookup(name))
 		return res
 
 	def mode(self):

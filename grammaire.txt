@@ -44,8 +44,8 @@
 <listeSpecifFormelles> ::= <specif> , <listeSpecifFormelles> 
                         | <specif>
 
-<specif> ::= <listeIdentifiants> : <mode> <type>
-            | <listeIdentifiants> : <type>
+<specif> ::= <identifiant> : <mode> <type>
+            | <identifiant> : <type>
 
 <mode> ::= entree
         | entree sortie
