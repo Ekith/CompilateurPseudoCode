@@ -23,7 +23,7 @@ Programme Exemple
 Debut Programme
     a = 10
     b = 20
-    c = addition(a+b)
+    c = addition(a,b)
 
     x = 1.25
     s = "test"

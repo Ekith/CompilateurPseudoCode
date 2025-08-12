@@ -407,6 +407,10 @@ class SyntaxAnalyser:
 		self.expression()
 		if self.lexical_analyser.isSymbol(","):
 			self.lexical_analyser.acceptSymbol(",")
+   
+			# Génération du code pour la virgule
+			self.code_generator.write(", ")
+
 			self.liste_param()
 
 	def affectation(self):
