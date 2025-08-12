@@ -690,20 +690,36 @@ class SyntaxAnalyser:
 		"""Parse a value."""
 		logger.debug("valeur()")
 		if self.lexical_analyser.isFloat2():
-			self.flottant()
+			value = self.flottant()
 			logger.debug("Value: float")
+
+			# Génération du code pour le flottant
+			self.code_generator.write(str(value))
+
 			return "flottant"
 		elif self.lexical_analyser.isInteger():
-			self.entier()
+			value = self.entier()
 			logger.debug("Value: integer")
+
+			# Génération du code pour l'entier
+			self.code_generator.write(str(value))
+
 			return "entier"
 		elif self.lexical_analyser.isKeyword("Vrai") or self.lexical_analyser.isKeyword("Faux"):
-			self.val_bool()
+			value = self.val_bool()
 			logger.debug("Value: boolean")
+
+			# Génération du code pour le booléen
+			self.code_generator.write(self.code_generator.association_keyword(value))
+
 			return "booleen"
 		elif self.lexical_analyser.isString():
-			self.chaine()
+			value = self.chaine()
 			logger.debug("Value: string")
+
+			# Génération du code pour la chaîne
+			self.code_generator.write(f'"{value[1:-1]}"') # Suppression des guillemets
+
 			return "chaine"
 		else:
 			raise SyntaxError("Expected a value (entier or booleen)")
@@ -711,14 +727,18 @@ class SyntaxAnalyser:
 	def val_bool(self):
 		"""Parse a boolean value."""
 		logger.debug("val_bool()")
+		value = None
 		if self.lexical_analyser.isKeyword("Vrai"):
 			self.lexical_analyser.acceptKeyword("Vrai")
 			logger.debug("Boolean value: Vrai")
+			value = "Vrai"
 		elif self.lexical_analyser.isKeyword("Faux"):
 			self.lexical_analyser.acceptKeyword("Faux")
 			logger.debug("Boolean value: Faux")
+			value = "Faux"
 		else:
 			raise SyntaxError("Expected a boolean value (Vrai or Faux)")
+		return value
 
 	def ent_sort(self) -> str:
 		"""Parse an entry or exit."""
