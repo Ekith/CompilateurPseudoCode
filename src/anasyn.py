@@ -687,9 +687,17 @@ class SyntaxAnalyser:
 		logger.debug("appel_fonct()")
 		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol("(")
+
+		# Génération du code pour l'appel de fonction
+		self.code_generator.write(f"{name}(")
+
 		if not self.lexical_analyser.isSymbol(")"):
 			self.liste_param()
 		self.lexical_analyser.acceptSymbol(")")
+
+		# Génération du code pour la fin de l'appel de fonction
+		self.code_generator.write(")")
+
 		entry = self.symbol_table.lookup(name)
 		logger.debug(f"Function call: {name}, found: {entry}, scope: {self.symbol_table.current_scope}")
 		if entry is None or entry.role != "function":
