@@ -61,7 +61,12 @@ class CodeGenerator:
             "et" : "&&",
             "ou" : "||",
             "non" : "!",
-            "vide" : "void"
+            "vide" : "void",
+            
+            "print_entier" : "%d",
+            "print_booleen" : "%d",
+            "print_chaine" : "%s",
+            "print_flottant" : "%f"
         }
 
         if value in keywords:

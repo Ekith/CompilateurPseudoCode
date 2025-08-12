@@ -44,7 +44,13 @@ class SyntaxAnalyser:
 		self.partie_decla()
 		self.lexical_analyser.acceptKeyword("Debut")
 		self.lexical_analyser.acceptKeyword("Programme")
+  
 		self.suite_instr()
+  
+		# Génération de code pour la fin du programme
+		self.code_generator.write("return 0;")
+		self.code_generator.write("}")
+  
 		self.lexical_analyser.acceptKeyword("Fin")
   
 	def partie_decla(self):
@@ -61,6 +67,10 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptKeyword("Definitions")
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_decla_op()
+   
+		# Génération du code pour le corps du programme
+		self.code_generator.write("int main() {")
+   
 		if self.lexical_analyser.isKeyword("Variables"):
 			logger.debug("Parsing variable declarations")
 			self.lexical_analyser.acceptKeyword("Variables")
@@ -107,7 +117,10 @@ class SyntaxAnalyser:
 		self.code_generator.write(f"{c_type} {ident}(")
 		for para in param:
 			p_type = self.code_generator.association_keyword(para.type)
-			self.code_generator.write(f"{p_type} {para.name}, ")
+			if param.index(para) == len(param) - 1:
+				self.code_generator.write(f"{p_type} {para.name}")
+			else:
+				self.code_generator.write(f"{p_type} {para.name}, ")
 		self.code_generator.write(");")
 
 	def prototype_procedure(self):
@@ -121,11 +134,13 @@ class SyntaxAnalyser:
 		logger.debug(f"Procedure prototype: {ident}, parameters: {param}")
 
 		# Génération du code pour le prototype de procédure
-		c_type = self.code_generator.association_keyword("vide")
-		self.code_generator.write(f"{c_type} {ident}(")
+		p_type = self.code_generator.association_keyword("vide")
+		self.code_generator.write(f"{p_type} {ident}(")
 		for para in param:
-			p_type = self.code_generator.association_keyword(para.type)
-			self.code_generator.write(f"{p_type} {para.name}, ")
+			if param.index(para) == len(param) - 1:
+				self.code_generator.write(f"{p_type} {para.name}")
+			else:
+				self.code_generator.write(f"{p_type} {para.name}, ")
 		self.code_generator.write(");")
 
 
@@ -157,8 +172,23 @@ class SyntaxAnalyser:
 		self.lexical_analyser.acceptSymbol(":")
 
 		logger.debug(f"Procedure declaration: {ident}, parameters: {param}")
+
+		# Génération du code pour la déclaration de procédure
+		d_type = self.code_generator.association_keyword("vide")
+		self.code_generator.write(f"{d_type} {ident}(")
+		for para in param:
+			d_type = self.code_generator.association_keyword(para.type)
+			if param.index(para) == len(param) - 1:
+				self.code_generator.write(f"{d_type} {para.name}")
+			else:
+				self.code_generator.write(f"{d_type} {para.name}, ")
+		self.code_generator.write(") {")
   
 		self.corps_proc()
+
+		# Génération du code pour la fin d'une procédure
+		self.code_generator.write("}")
+
 		self.symbol_table.leave_scope()
 
 	def fonction(self):
@@ -175,10 +205,23 @@ class SyntaxAnalyser:
 		type = self.type()
 		logger.debug(f"Function type: {type}")
 		self.lexical_analyser.acceptSymbol(":")
-  
-		logger.debug(f"Function type: {type}")
+
+		# Génération du code pour la déclaration de procédure
+		d_type = self.code_generator.association_keyword(type)
+		self.code_generator.write(f"{d_type} {ident}(")
+		for para in param:
+			d_type = self.code_generator.association_keyword(para.type)
+			if param.index(para) == len(param) - 1:
+				self.code_generator.write(f"{d_type} {para.name}")
+			else:
+				self.code_generator.write(f"{d_type} {para.name}, ")
+		self.code_generator.write(") {")
 
 		self.corps_fonction()
+
+		# Génération du code pour la fin d'une fonction
+		self.code_generator.write("}")
+  
 		logger.debug(f"Function declaration: {ident}, return type: {type}, parameters: {param}")
 		self.symbol_table.leave_scope()
   
@@ -298,6 +341,11 @@ class SyntaxAnalyser:
 		for name in names:
 			self.symbol_table.add_entry(name, type, "variable", None)
 		logger.debug(f"Variable declaration: {names}, type: {type}")
+
+		# Génération du code pour la déclaration de variable
+		d_type = self.code_generator.association_keyword(type)
+		for name in names:
+			self.code_generator.write(f"{d_type} {name};")
 
 	def liste_identifiants(self):
 		"""Parse a list of identifiers."""
@@ -651,9 +699,21 @@ class SyntaxAnalyser:
 		logger.debug("boucle()")
 		self.lexical_analyser.acceptKeyword("Tant")
 		self.lexical_analyser.acceptKeyword("que")
+
+		# Génération du code pour l'initialisation d'une boucle
+		self.code_generator.write("while (")
+  
 		self.expression()
+
+		# Génération du code pour la fin de la condition de la boucle
+		self.code_generator.write(") {")
+
 		self.lexical_analyser.acceptKeyword("Faire")
 		self.suite_instr()
+
+		# Génération du code pour la fin du corps de la boucle
+		self.code_generator.write("}")
+
 		self.lexical_analyser.acceptKeyword("Fin")
 		self.lexical_analyser.acceptKeyword("Tant")
 		self.lexical_analyser.acceptKeyword("que")

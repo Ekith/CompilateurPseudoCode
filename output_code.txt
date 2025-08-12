@@ -3,4 +3,19 @@
 #include <string.h>
 #include <stdbool.h>
 void test();
-int addition(int a, int b, );
+int addition(int a, int b);
+void test() {
+}
+int addition() {
+}
+	int main() {
+	int a;
+	int b;
+	int c;
+	float x;
+	char* s;
+	char* ss;
+	while () {
+	}
+	return 0;
+}
