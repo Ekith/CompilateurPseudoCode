@@ -848,6 +848,7 @@ class SyntaxAnalyser:
 		if not value and value != 0:
 			logger.debug("No integer value found")
 			raise SyntaxError("Expected an integer")
+		return value
 
 	def flottant(self) -> float:
 		"""Parse a float."""
