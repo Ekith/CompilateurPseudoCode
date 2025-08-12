@@ -104,6 +104,14 @@ class SyntaxAnalyser:
 		logger.debug("prototype_fonction()")
 		self.lexical_analyser.acceptKeyword("Fonction")
 		ident = self.identifiant()
+  
+		# Génération du code pour le prototype de fonction
+		lexical_analyser_copy = self.lexical_analyser.get_copy_scope_in_next("->")
+		# Récupération du type de retour grace à une copie
+		cg_type = lexical_analyser_copy.lexical_units[lexical_analyser_copy.lexical_unit_index+1].get_value()
+		cg_type = self.code_generator.association_keyword(cg_type)
+		self.code_generator.write(f"{cg_type} {ident}(")
+  
 		self.symbol_table.enter_scope(ident)
 		param = self.partie_formelle()
 		self.symbol_table.leave_scope()
@@ -112,35 +120,25 @@ class SyntaxAnalyser:
 		self.symbol_table.add_entry(ident, type, "function", param)
 		logger.debug(f"Function prototype: {ident}, return type: {type}, parameters: {param}")
 
-		# Génération du code pour le prototype de fonction
-		c_type = self.code_generator.association_keyword(type)
-		self.code_generator.write(f"{c_type} {ident}(")
-		for para in param:
-			p_type = self.code_generator.association_keyword(para.type)
-			if param.index(para) == len(param) - 1:
-				self.code_generator.write(f"{p_type} {para.name}")
-			else:
-				self.code_generator.write(f"{p_type} {para.name}, ")
+		# Génération du code pour la fin du prototype d'une fonction
 		self.code_generator.write(");")
 
 	def prototype_procedure(self):
 		logger.debug("prototype_procedure()")
 		self.lexical_analyser.acceptKeyword("Procedure")
 		ident = self.identifiant()
+  
+		# Génération du code pour le prototype de procédure
+		cg_type = self.code_generator.association_keyword("vide")
+		self.code_generator.write(f"{cg_type} {ident}(")
+  
 		self.symbol_table.enter_scope(ident)
 		param = self.partie_formelle()
 		self.symbol_table.leave_scope()
 		self.symbol_table.add_entry(ident, None, "procedure", param)
 		logger.debug(f"Procedure prototype: {ident}, parameters: {param}")
 
-		# Génération du code pour le prototype de procédure
-		p_type = self.code_generator.association_keyword("vide")
-		self.code_generator.write(f"{p_type} {ident}(")
-		for para in param:
-			if param.index(para) == len(param) - 1:
-				self.code_generator.write(f"{p_type} {para.name}")
-			else:
-				self.code_generator.write(f"{p_type} {para.name}, ")
+		# Génération du code pour la fin du prototype d'une procédure
 		self.code_generator.write(");")
 
 
@@ -164,6 +162,10 @@ class SyntaxAnalyser:
 		logger.debug("procedure()")
 		self.lexical_analyser.acceptKeyword("Procedure")
 		ident = self.identifiant()
+  
+		# Génération du code pour la déclaration de procédure
+		cg_type = self.code_generator.association_keyword("vide")
+		self.code_generator.write(f"{cg_type} {ident}(")
 
 		self.symbol_table.enter_scope(ident)
 		logger.debug(f"Entering scope: {ident}")
@@ -173,15 +175,7 @@ class SyntaxAnalyser:
 
 		logger.debug(f"Procedure declaration: {ident}, parameters: {param}")
 
-		# Génération du code pour la déclaration de procédure
-		d_type = self.code_generator.association_keyword("vide")
-		self.code_generator.write(f"{d_type} {ident}(")
-		for para in param:
-			d_type = self.code_generator.association_keyword(para.type)
-			if param.index(para) == len(param) - 1:
-				self.code_generator.write(f"{d_type} {para.name}")
-			else:
-				self.code_generator.write(f"{d_type} {para.name}, ")
+		# Génération du code pour le debut du corps d'une procédure
 		self.code_generator.write(") {")
   
 		self.corps_proc()
@@ -197,6 +191,13 @@ class SyntaxAnalyser:
 		self.lexical_analyser.acceptKeyword("Fonction")
 		ident = self.identifiant()
 
+		# Génération du code pour la déclaration de procédure
+		lexical_analyser_copy = self.lexical_analyser.get_copy_scope_in_next("->")
+		# Récupération du type de retour grace à une copie
+		cg_type = lexical_analyser_copy.lexical_units[lexical_analyser_copy.lexical_unit_index+1].get_value()
+		cg_type = self.code_generator.association_keyword(cg_type)
+		self.code_generator.write(f"{cg_type} {ident}(")
+  
 		self.symbol_table.enter_scope(ident)
 		logger.debug(f"Entering scope: {ident}")
 
@@ -206,15 +207,7 @@ class SyntaxAnalyser:
 		logger.debug(f"Function type: {type}")
 		self.lexical_analyser.acceptSymbol(":")
 
-		# Génération du code pour la déclaration de procédure
-		d_type = self.code_generator.association_keyword(type)
-		self.code_generator.write(f"{d_type} {ident}(")
-		for para in param:
-			d_type = self.code_generator.association_keyword(para.type)
-			if param.index(para) == len(param) - 1:
-				self.code_generator.write(f"{d_type} {para.name}")
-			else:
-				self.code_generator.write(f"{d_type} {para.name}, ")
+
 		self.code_generator.write(") {")
 
 		self.corps_fonction()
@@ -264,6 +257,10 @@ class SyntaxAnalyser:
 		q = [] # List to store formal specifications
 		if self.lexical_analyser.isSymbol(","):
 			self.lexical_analyser.acceptSymbol(",")
+
+			# Génération du code "virgule"
+			self.code_generator.write(", ")
+
 			q = self.liste_specif_formelles()
 		return t+q
    
@@ -272,6 +269,7 @@ class SyntaxAnalyser:
 		logger.debug("specif()")
 		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol(":")
+		mode = ""
 		if self.lexical_analyser.isKeyword("entree"):
 			mode = self.mode()
 		type = self.type()
@@ -280,6 +278,12 @@ class SyntaxAnalyser:
 		if self.symbol_table.mode_prototype:
 			self.symbol_table.add_entry(name, type, "variable", None, mode)
 			res.append(self.symbol_table.lookup(name))
+
+		# Génération du code pour la spécification formelle
+		cg_type = self.code_generator.association_keyword(type)
+		cg_mode = self.code_generator.association_keyword(mode)
+		self.code_generator.write(f"{cg_type}{cg_mode} {name}")
+
 		return res
 
 	def mode(self):
@@ -342,9 +346,9 @@ class SyntaxAnalyser:
 		logger.debug(f"Variable declaration: {names}, type: {type}")
 
 		# Génération du code pour la déclaration de variable
-		d_type = self.code_generator.association_keyword(type)
+		cg_type = self.code_generator.association_keyword(type)
 		for name in names:
-			self.code_generator.write(f"{d_type} {name};")
+			self.code_generator.write(f"{cg_type} {name};")
 
 	def liste_identifiants(self):
 		"""Parse a list of identifiers."""

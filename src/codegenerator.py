@@ -53,6 +53,7 @@ class CodeGenerator:
             "chaine": "char*",
             "flottant": "float",
             "vide" : "void",
+            
             "infegal" : "<=",
             "inf" : "<",
             "sup" : ">",
@@ -63,6 +64,9 @@ class CodeGenerator:
             "ou" : "||",
             "non" : "!",
             "modulo" : "%",
+            
+            "entree" : "",
+            "entree sortie": "*",
 
             "print_entier" : "%d",
             "print_booleen" : "%d",

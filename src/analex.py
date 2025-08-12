@@ -1,4 +1,4 @@
-import sys, argparse, re
+import sys, argparse, re, copy
 
 from src.lexicalunit import LexicalUnit, Character, Keyword, Symbol, Identifier, Integer, Fel, String, Float
 
@@ -378,6 +378,15 @@ class LexicalAnalyser(object):
 	def next_unit(self) -> LexicalUnit:
 		self.lexical_unit_index += 1
 		return self.get_current_unit()
+
+
+	def get_copy_scope_in_next(self, unit_value):
+		lexical_analyser_copy = copy.deepcopy(self)
+		while lexical_analyser_copy.lexical_unit_index < len(lexical_analyser_copy.lexical_units):
+			if lexical_analyser_copy.lexical_units[lexical_analyser_copy.lexical_unit_index].get_value() == unit_value:
+				return lexical_analyser_copy
+			lexical_analyser_copy.lexical_unit_index += 1
+		return None
 
 ########################################################################				 		 
 
