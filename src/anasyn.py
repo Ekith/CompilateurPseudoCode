@@ -412,9 +412,16 @@ class SyntaxAnalyser:
 	def affectation(self):
 		"""Parse an assignment."""
 		logger.debug("affectation()")
-		self.identifiant()
+		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol("=")
+
+		# Génération du code pour l'affectation
+		self.code_generator.write(f"{name} = ")
+  
 		self.expression()
+
+		# Génération du code pour la fin de l'affectation
+		self.code_generator.write(";")
 
 	def expression(self) -> str:
 		"""Parse an expression."""
@@ -679,7 +686,15 @@ class SyntaxAnalyser:
 		if self.lexical_analyser.isKeyword("afficher"):
 			self.lexical_analyser.acceptKeyword("afficher")
 			self.lexical_analyser.acceptSymbol("(")
+
+			# Génération du code pour l'affichage
+			self.code_generator.write("printf(")  
+
 			value_type = self.expression()
+
+			# Génération du code pour la fin de l'affichage
+			self.code_generator.write(f");")
+
 			self.lexical_analyser.acceptSymbol(")")
 		elif self.lexical_analyser.isKeyword("lire"):
 			self.lexical_analyser.acceptKeyword("lire")
