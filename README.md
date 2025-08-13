@@ -129,3 +129,10 @@ lire(<variable>)
 Il a été décidé dans ce langage de s'affranchir des opérateurs de comparaison traditionnels tels que "==" et "!=". À la place, les mots clés "egal" et "diff" sont utilisés pour effectuer des comparaisons d'égalité et d'inégalité.
 De même, les mots clés "inf", "infegal", "sup" et "supegal" sont utilisés pour les comparaisons de valeurs numériques.
 
+
+
+## Fonctionnalité incomplète
+
+- Instructions `lire()` non fonctionnelle
+- Gestion des modes entrée sortie des paramètres de fonctions et de procédures
+- Gestion des erreurs et des exceptions
