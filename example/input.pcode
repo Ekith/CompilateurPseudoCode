@@ -7,7 +7,7 @@ Programme Exemple
     Definitions :
         Procedure test () :
             Debut
-                afficher (4+0)
+                afficher (4)
             Fin
 
         Fonction addition(a : entree entier, b : entree entier) -> entier :
@@ -29,7 +29,11 @@ Debut Programme
     s = "test"
     ss = 'test2'
 
-    afficher (c+0)
+    afficher(s)
+    afficher(ss)
+    afficher(x)
+
+    afficher (c)
     test()
     afficher (123 + 45)
 

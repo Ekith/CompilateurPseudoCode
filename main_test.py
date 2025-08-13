@@ -35,14 +35,19 @@ def main():
         with open(symbolTableFilename, 'w') as output_file:
             output_file.write(str(symbol_table))
 
+        syntaxys_analyser.code_generator.compile_file()
+        syntaxys_analyser.code_generator.execute_file()
+
     except Exception as e:
         print(f"Error: {e}")
         return
     
     
+    
+    
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    logging.getLogger().setLevel(logging.DEBUG)
+    # logging.getLogger().setLevel(logging.DEBUG)
     logger = logging.getLogger(__name__)
 
     main()

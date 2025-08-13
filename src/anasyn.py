@@ -776,6 +776,7 @@ class SyntaxAnalyser:
 			cg_type = syntax_analyser_copy.expression()
 			self.code_generator.write("\"")
 			self.code_generator.write(self.code_generator.association_keyword("print_" + cg_type))
+			self.code_generator.write("\\n")
 			self.code_generator.write("\",")
 			syntax_analyser_copy.code_generator.delete_file()
 			syntax_analyser_copy = None
@@ -970,7 +971,7 @@ class SyntaxAnalyser:
 
 	def initialize_code_generator(self):
 		"""Initialize the code generator."""
-		self.code_generator = CodeGenerator("output_code.txt")
+		self.code_generator = CodeGenerator("output_code.c")
 
 		str = """#include <stdio.h>
 #include <stdlib.h>

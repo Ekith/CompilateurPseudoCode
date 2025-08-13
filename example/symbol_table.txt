@@ -3,10 +3,4 @@ test : procedure (returns None) (arguments : ) in scope 'global'
 a : variable (entier) in scope 'addition' in mode entree
 b : variable (entier) in scope 'addition' in mode entree
 addition : function (returns entier) (arguments : a, b, ) in scope 'global'
-a : variable (entier) in scope 'global' in mode None
-b : variable (entier) in scope 'global' in mode None
-c : variable (entier) in scope 'global' in mode None
-x : variable (flottant) in scope 'global' in mode None
-s : variable (chaine) in scope 'global' in mode None
-ss : variable (chaine) in scope 'global' in mode None
 ===========================================

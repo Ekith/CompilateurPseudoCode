@@ -86,3 +86,11 @@ class CodeGenerator:
         self.output_file = os.path.abspath(output_file)
         with open(self.output_file, 'w') as f:
             f.write("")
+
+    def compile_file(self):
+        os.system(f"gcc {self.output_file} -o {self.output_file}.out -Wall")
+        os.remove(self.output_file)
+    
+    def execute_file(self):
+        os.system(f"{self.output_file}.out")
+        os.remove(f"{self.output_file}.out")

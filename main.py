@@ -51,6 +51,9 @@ def main(input_file, symbol_table_file=None, lexical_analysis_file=None, output_
             with open(symbol_table_filename, 'w') as output_file:
                 output_file.write(str(symbol_table))
 
+        syntax_analyser.code_generator.compile_file()
+        syntax_analyser.code_generator.execute_file()
+
     except Exception as e:
         logging.error(f"Error: {e}")
         return
