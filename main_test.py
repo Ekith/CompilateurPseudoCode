@@ -35,8 +35,8 @@ def main():
         with open(symbolTableFilename, 'w') as output_file:
             output_file.write(str(symbol_table))
 
-        syntaxys_analyser.code_generator.compile_file()
-        syntaxys_analyser.code_generator.execute_file()
+        # syntaxys_analyser.code_generator.compile_file()
+        # syntaxys_analyser.code_generator.execute_file()
 
     except Exception as e:
         print(f"Error: {e}")

@@ -134,5 +134,5 @@ De même, les mots clés "inf", "infegal", "sup" et "supegal" sont utilisés pou
 ## Fonctionnalité incomplète
 
 - Instructions `lire()` non fonctionnelle
-- Gestion des modes entrée sortie des paramètres de fonctions et de procédures
+- Gestion des modes `entrée sortie` des paramètres de fonctions et de procédures
 - Gestion des erreurs et des exceptions

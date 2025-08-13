@@ -795,6 +795,11 @@ class SyntaxAnalyser:
 			if entry is None or entry.role != "variable":
 				raise SyntaxError(f"Identifier '{name}' is not declared or is not a variable")
 			value_type = entry.type
+
+			# Génération du code pour la lecture
+			cg_type = self.code_generator.association_keyword("print_" + value_type)
+			self.code_generator.write(f"scanf(\"{cg_type}\", &{name});")
+
 			self.lexical_analyser.acceptSymbol(")")
 		else:
 			raise SyntaxError("Expected an entry or exit (afficher or lire)")
