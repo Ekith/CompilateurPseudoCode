@@ -1,5 +1,6 @@
 from src.analex import LexicalAnalyser
 from src.symboltable import SymbolTable
+from src.codegenerator import CodeGenerator
 
 import logging
 import copy
@@ -21,7 +22,9 @@ class SyntaxAnalyser:
 		self.lexical_analyser : LexicalAnalyser = lexical_analyser
 		self.symbol_table : SymbolTable = symbol_table
 
- 
+		self.code_generator = None
+		self.initialize_code_generator()
+
 	def programme(self):
 		"""Parse a program."""
 		logger.debug("programme()")
@@ -41,7 +44,13 @@ class SyntaxAnalyser:
 		self.partie_decla()
 		self.lexical_analyser.acceptKeyword("Debut")
 		self.lexical_analyser.acceptKeyword("Programme")
+  
 		self.suite_instr()
+  
+		# Génération de code pour la fin du programme
+		self.code_generator.write("return 0;")
+		self.code_generator.write("}")
+  
 		self.lexical_analyser.acceptKeyword("Fin")
   
 	def partie_decla(self):
@@ -54,9 +63,14 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_prototype()
 			self.symbol_table.mode_prototype = False
+			self.symbol_table.save_to_file()
 			self.lexical_analyser.acceptKeyword("Definitions")
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_decla_op()
+   
+		# Génération du code pour le corps du programme
+		self.code_generator.write("int main() {")
+   
 		if self.lexical_analyser.isKeyword("Variables"):
 			logger.debug("Parsing variable declarations")
 			self.lexical_analyser.acceptKeyword("Variables")
@@ -90,19 +104,43 @@ class SyntaxAnalyser:
 		logger.debug("prototype_fonction()")
 		self.lexical_analyser.acceptKeyword("Fonction")
 		ident = self.identifiant()
+  
+		# Génération du code pour le prototype de fonction
+		lexical_analyser_copy = self.lexical_analyser.get_copy_scope_in_next("->")
+		# Récupération du type de retour grace à une copie
+		cg_type = lexical_analyser_copy.lexical_units[lexical_analyser_copy.lexical_unit_index+1].get_value()
+		cg_type = self.code_generator.association_keyword(cg_type)
+		self.code_generator.write(f"{cg_type} {ident}(")
+  
+		self.symbol_table.enter_scope(ident)
 		param = self.partie_formelle()
+		self.symbol_table.leave_scope()
 		self.lexical_analyser.acceptSymbol("->")
 		type = self.type()
 		self.symbol_table.add_entry(ident, type, "function", param)
 		logger.debug(f"Function prototype: {ident}, return type: {type}, parameters: {param}")
 
+		# Génération du code pour la fin du prototype d'une fonction
+		self.code_generator.write(");")
+
 	def prototype_procedure(self):
 		logger.debug("prototype_procedure()")
 		self.lexical_analyser.acceptKeyword("Procedure")
 		ident = self.identifiant()
+  
+		# Génération du code pour le prototype de procédure
+		cg_type = self.code_generator.association_keyword("vide")
+		self.code_generator.write(f"{cg_type} {ident}(")
+  
+		self.symbol_table.enter_scope(ident)
 		param = self.partie_formelle()
+		self.symbol_table.leave_scope()
 		self.symbol_table.add_entry(ident, None, "procedure", param)
 		logger.debug(f"Procedure prototype: {ident}, parameters: {param}")
+
+		# Génération du code pour la fin du prototype d'une procédure
+		self.code_generator.write(");")
+
 
 	def liste_decla_op(self):
 		"""Parse a list of operator declarations."""
@@ -124,6 +162,10 @@ class SyntaxAnalyser:
 		logger.debug("procedure()")
 		self.lexical_analyser.acceptKeyword("Procedure")
 		ident = self.identifiant()
+  
+		# Génération du code pour la déclaration de procédure
+		cg_type = self.code_generator.association_keyword("vide")
+		self.code_generator.write(f"{cg_type} {ident}(")
 
 		self.symbol_table.enter_scope(ident)
 		logger.debug(f"Entering scope: {ident}")
@@ -132,8 +174,15 @@ class SyntaxAnalyser:
 		self.lexical_analyser.acceptSymbol(":")
 
 		logger.debug(f"Procedure declaration: {ident}, parameters: {param}")
+
+		# Génération du code pour le debut du corps d'une procédure
+		self.code_generator.write(") {")
   
 		self.corps_proc()
+
+		# Génération du code pour la fin d'une procédure
+		self.code_generator.write("}")
+
 		self.symbol_table.leave_scope()
 
 	def fonction(self):
@@ -142,6 +191,13 @@ class SyntaxAnalyser:
 		self.lexical_analyser.acceptKeyword("Fonction")
 		ident = self.identifiant()
 
+		# Génération du code pour la déclaration de procédure
+		lexical_analyser_copy = self.lexical_analyser.get_copy_scope_in_next("->")
+		# Récupération du type de retour grace à une copie
+		cg_type = lexical_analyser_copy.lexical_units[lexical_analyser_copy.lexical_unit_index+1].get_value()
+		cg_type = self.code_generator.association_keyword(cg_type)
+		self.code_generator.write(f"{cg_type} {ident}(")
+  
 		self.symbol_table.enter_scope(ident)
 		logger.debug(f"Entering scope: {ident}")
 
@@ -150,10 +206,15 @@ class SyntaxAnalyser:
 		type = self.type()
 		logger.debug(f"Function type: {type}")
 		self.lexical_analyser.acceptSymbol(":")
-  
-		logger.debug(f"Function type: {type}")
+
+
+		self.code_generator.write(") {")
 
 		self.corps_fonction()
+
+		# Génération du code pour la fin d'une fonction
+		self.code_generator.write("}")
+  
 		logger.debug(f"Function declaration: {ident}, return type: {type}, parameters: {param}")
 		self.symbol_table.leave_scope()
   
@@ -196,23 +257,33 @@ class SyntaxAnalyser:
 		q = [] # List to store formal specifications
 		if self.lexical_analyser.isSymbol(","):
 			self.lexical_analyser.acceptSymbol(",")
+
+			# Génération du code "virgule"
+			self.code_generator.write(", ")
+
 			q = self.liste_specif_formelles()
 		return t+q
    
 	def specif(self):
 		"""Parse a formal specification."""
 		logger.debug("specif()")
-		names = self.liste_identifiants() # List of identifiers
+		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol(":")
+		mode = ""
 		if self.lexical_analyser.isKeyword("entree"):
 			mode = self.mode()
 		type = self.type()
-		logger.debug(f"Formal specification: {names}, type: {type}, mode: {mode if 'mode' in locals() else 'None'}")
+		logger.debug(f"Formal specification: {name}, type: {type}, mode: {mode if 'mode' in locals() else 'None'}")
 		res = []
-		if not self.symbol_table.mode_prototype:
-			for name in names:
-				self.symbol_table.add_entry(name, type, "variable", None, mode)
-				res.append(self.symbol_table.lookup(name))
+		if self.symbol_table.mode_prototype:
+			self.symbol_table.add_entry(name, type, "variable", None, mode)
+			res.append(self.symbol_table.lookup(name))
+
+		# Génération du code pour la spécification formelle
+		cg_type = self.code_generator.association_keyword(type)
+		cg_mode = self.code_generator.association_keyword(mode)
+		self.code_generator.write(f"{cg_type}{cg_mode} {name}")
+
 		return res
 
 	def mode(self):
@@ -274,6 +345,11 @@ class SyntaxAnalyser:
 			self.symbol_table.add_entry(name, type, "variable", None)
 		logger.debug(f"Variable declaration: {names}, type: {type}")
 
+		# Génération du code pour la déclaration de variable
+		cg_type = self.code_generator.association_keyword(type)
+		for name in names:
+			self.code_generator.write(f"{cg_type} {name};")
+
 	def liste_identifiants(self):
 		"""Parse a list of identifiers."""
 		logger.debug("liste_identifiants()")
@@ -322,11 +398,18 @@ class SyntaxAnalyser:
 	def appel_proc(self):
 		"""Parse a procedure call."""
 		logger.debug("appel_proc()")
-		self.identifiant()
+		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol("(")
+
+		# Génération du code pour l'appel de procédure
+		self.code_generator.write(f"{name}(")
+
 		if not self.lexical_analyser.isSymbol(")"):
 			self.liste_param()
 		self.lexical_analyser.acceptSymbol(")")
+
+		# Génération du code pour la fin de l'appel de procédure
+		self.code_generator.write(");")
 
 	def liste_param(self):
 		"""Parse a list of parameters."""
@@ -334,14 +417,25 @@ class SyntaxAnalyser:
 		self.expression()
 		if self.lexical_analyser.isSymbol(","):
 			self.lexical_analyser.acceptSymbol(",")
+   
+			# Génération du code pour la virgule
+			self.code_generator.write(", ")
+
 			self.liste_param()
 
 	def affectation(self):
 		"""Parse an assignment."""
 		logger.debug("affectation()")
-		self.identifiant()
+		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol("=")
+
+		# Génération du code pour l'affectation
+		self.code_generator.write(f"{name} = ")
+  
 		self.expression()
+
+		# Génération du code pour la fin de l'affectation
+		self.code_generator.write(";")
 
 	def expression(self) -> str:
 		"""Parse an expression."""
@@ -358,6 +452,10 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.lexical_analyser.acceptKeyword("ou")
 			logger.debug("Found 'ou' keyword")
+   
+			# Génération du "ou" de l'expression
+			self.code_generator.write("||")
+   
 			value_type_B = self.exp_ou()
 			if value_type_A != "booleen" or value_type_B != "booleen":
 				logger.debug(f"exp_ou() found incompatible types")
@@ -374,6 +472,10 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.lexical_analyser.acceptKeyword("et")
 			logger.debug("Found 'et' keyword")
+
+			# Génération du "et" de l'expression
+			self.code_generator.write("&&")
+
 			value_type_B = self.exp_et()
 			if value_type_A != "booleen" or value_type_B != "booleen":
 				logger.debug(f"exp_et() found incompatible types")
@@ -410,6 +512,7 @@ class SyntaxAnalyser:
 	def op_comp(self):
 		"""Parse a comparison operator."""
 		logger.debug("op_comp()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isKeyword("egal"):
 			self.lexical_analyser.acceptKeyword("egal")
 			logger.debug("Found 'egal' keyword")
@@ -430,6 +533,10 @@ class SyntaxAnalyser:
 			logger.debug("Found 'supegal' keyword")
 		else:
 			raise SyntaxError("Expected a relational operator")
+
+		# Génération du code pour l'opérateur de comparaison
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
 
 	def exp_ad(self) -> str:
 		"""Parse the addition level of expressions."""
@@ -452,6 +559,7 @@ class SyntaxAnalyser:
 	def op_ad(self):
 		"""Parse an additive operator."""
 		logger.debug("op_ad()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isSymbol("+"):
 			self.lexical_analyser.acceptSymbol("+")
 			logger.debug("Found '+' symbol")
@@ -460,6 +568,10 @@ class SyntaxAnalyser:
 			logger.debug("Found '-' symbol")
 		else:
 			raise SyntaxError("Expected an additive operator")
+
+		# Génération du code pour l'opérateur d'addition
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
 
 	def exp_mult(self) -> str:
 		"""Parse the multiplication level of expressions."""
@@ -482,6 +594,7 @@ class SyntaxAnalyser:
 	def op_mult(self):
 		"""Parse a multiplicative operator."""
 		logger.debug("op_mult()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isSymbol("*"):
 			self.lexical_analyser.acceptSymbol("*")
 			logger.debug("Found '*' symbol")
@@ -497,6 +610,10 @@ class SyntaxAnalyser:
 		else:
 			raise SyntaxError("Expected a multiplicative operator")
 
+		# Génération du code pour l'opérateur de multiplication
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
+
 	def prim(self):
 		"""Parse a primary expression."""
 		logger.debug("prim()")
@@ -509,6 +626,7 @@ class SyntaxAnalyser:
 	def op_unaire(self):
 		"""Parse a unary operator."""
 		logger.debug("op_unaire()")
+		operateur = self.lexical_analyser.get_value()
 		if self.lexical_analyser.isSymbol("+"):
 			self.lexical_analyser.acceptSymbol("+")
 			logger.debug("Found '+' symbol")
@@ -521,6 +639,10 @@ class SyntaxAnalyser:
 		else:
 			raise SyntaxError("Expected a unary operator")
 
+		# Génération du code pour l'opérateur unaire
+		code_operateur = self.code_generator.association_keyword(operateur)
+		self.code_generator.write(code_operateur)
+
 	def elem_prim(self) -> str:
 		"""Parse an elementary primary expression."""
 		logger.debug("elem_prim()")
@@ -532,8 +654,16 @@ class SyntaxAnalyser:
 			value_type = self.valeur()
 		elif self.lexical_analyser.isSymbol("("):
 			self.lexical_analyser.acceptSymbol("(")
+
+			# Génération du code pour le cas d'un parenthèsage
+			self.code_generator.write("(")
+   
 			value_type = self.expression()
 			self.lexical_analyser.acceptSymbol(")")
+
+			# Génération du code pour le cas d'un parenthèsage
+			self.code_generator.write(")")
+
 		elif lexical_analyser_copy.isIdentifier():
 			lexical_analyser_copy.acceptIdentifier()
 			if lexical_analyser_copy.isSymbol("("):
@@ -546,6 +676,10 @@ class SyntaxAnalyser:
 				if entry is None:
 					raise SyntaxError(f"Identifier '{name}' is not declared")
 				value_type = entry.type
+
+				# Génération du code pour l'identifiant
+				self.code_generator.write(name)
+
 		else:
 			raise SyntaxError("Expected a primary expression (value, identifier, or function call)")
 		logger.debug(f"Elementary primary expression type: {value_type}")
@@ -556,9 +690,17 @@ class SyntaxAnalyser:
 		logger.debug("appel_fonct()")
 		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol("(")
+
+		# Génération du code pour l'appel de fonction
+		self.code_generator.write(f"{name}(")
+
 		if not self.lexical_analyser.isSymbol(")"):
 			self.liste_param()
 		self.lexical_analyser.acceptSymbol(")")
+
+		# Génération du code pour la fin de l'appel de fonction
+		self.code_generator.write(")")
+
 		entry = self.symbol_table.lookup(name)
 		logger.debug(f"Function call: {name}, found: {entry}, scope: {self.symbol_table.current_scope}")
 		if entry is None or entry.role != "function":
@@ -570,20 +712,36 @@ class SyntaxAnalyser:
 		"""Parse a value."""
 		logger.debug("valeur()")
 		if self.lexical_analyser.isFloat2():
-			self.flottant()
+			value = self.flottant()
 			logger.debug("Value: float")
+
+			# Génération du code pour le flottant
+			self.code_generator.write(str(value))
+
 			return "flottant"
 		elif self.lexical_analyser.isInteger():
-			self.entier()
+			value = self.entier()
 			logger.debug("Value: integer")
+
+			# Génération du code pour l'entier
+			self.code_generator.write(str(value))
+
 			return "entier"
 		elif self.lexical_analyser.isKeyword("Vrai") or self.lexical_analyser.isKeyword("Faux"):
-			self.val_bool()
+			value = self.val_bool()
 			logger.debug("Value: boolean")
+
+			# Génération du code pour le booléen
+			self.code_generator.write(self.code_generator.association_keyword(value))
+
 			return "booleen"
 		elif self.lexical_analyser.isString():
-			self.chaine()
+			value = self.chaine()
 			logger.debug("Value: string")
+
+			# Génération du code pour la chaîne
+			self.code_generator.write(f'"{value[1:-1]}"') # Suppression des guillemets
+
 			return "chaine"
 		else:
 			raise SyntaxError("Expected a value (entier or booleen)")
@@ -591,14 +749,18 @@ class SyntaxAnalyser:
 	def val_bool(self):
 		"""Parse a boolean value."""
 		logger.debug("val_bool()")
+		value = None
 		if self.lexical_analyser.isKeyword("Vrai"):
 			self.lexical_analyser.acceptKeyword("Vrai")
 			logger.debug("Boolean value: Vrai")
+			value = "Vrai"
 		elif self.lexical_analyser.isKeyword("Faux"):
 			self.lexical_analyser.acceptKeyword("Faux")
 			logger.debug("Boolean value: Faux")
+			value = "Faux"
 		else:
 			raise SyntaxError("Expected a boolean value (Vrai or Faux)")
+		return value
 
 	def ent_sort(self) -> str:
 		"""Parse an entry or exit."""
@@ -606,7 +768,24 @@ class SyntaxAnalyser:
 		if self.lexical_analyser.isKeyword("afficher"):
 			self.lexical_analyser.acceptKeyword("afficher")
 			self.lexical_analyser.acceptSymbol("(")
+
+			# Génération du code pour l'affichage
+			self.code_generator.write("printf(")
+			syntax_analyser_copy : SyntaxAnalyser = copy.deepcopy(self)
+			syntax_analyser_copy.code_generator.set_output_file("tmp")
+			cg_type = syntax_analyser_copy.expression()
+			self.code_generator.write("\"")
+			self.code_generator.write(self.code_generator.association_keyword("print_" + cg_type))
+			self.code_generator.write("\\n")
+			self.code_generator.write("\",")
+			syntax_analyser_copy.code_generator.delete_file()
+			syntax_analyser_copy = None
+
 			value_type = self.expression()
+
+			# Génération du code pour la fin de l'affichage
+			self.code_generator.write(f");")
+
 			self.lexical_analyser.acceptSymbol(")")
 		elif self.lexical_analyser.isKeyword("lire"):
 			self.lexical_analyser.acceptKeyword("lire")
@@ -626,9 +805,21 @@ class SyntaxAnalyser:
 		logger.debug("boucle()")
 		self.lexical_analyser.acceptKeyword("Tant")
 		self.lexical_analyser.acceptKeyword("que")
+
+		# Génération du code pour l'initialisation d'une boucle
+		self.code_generator.write("while (")
+  
 		self.expression()
+
+		# Génération du code pour la fin de la condition de la boucle
+		self.code_generator.write(") {")
+
 		self.lexical_analyser.acceptKeyword("Faire")
 		self.suite_instr()
+
+		# Génération du code pour la fin du corps de la boucle
+		self.code_generator.write("}")
+
 		self.lexical_analyser.acceptKeyword("Fin")
 		self.lexical_analyser.acceptKeyword("Tant")
 		self.lexical_analyser.acceptKeyword("que")
@@ -637,21 +828,45 @@ class SyntaxAnalyser:
 		"""Parse a condition."""
 		logger.debug("condition()")
 		self.lexical_analyser.acceptKeyword("Si")
+
+		# Génération du code pour la condition
+		self.code_generator.write("if (")
+  
 		self.expression()
+
+		# Génération du code pour la fin de la condition
+		self.code_generator.write(") {")
+
 		self.lexical_analyser.acceptKeyword("Alors")
 		self.suite_instr()
 		self.lexical_analyser.acceptKeyword("Fin")
 		self.lexical_analyser.acceptKeyword("Si")
+
+		# Génération du code pour la fin de la condition
+		self.code_generator.write("}")
+
 		if self.lexical_analyser.isKeyword("Sinon"):
+
+			# Génération du code pour le cas "Sinon"
+			self.code_generator.write("else {")
+
 			self.lexical_analyser.acceptKeyword("Sinon")
-			self.suite_instr()
-		self.lexical_analyser.acceptKeyword("Fin")
-		self.lexical_analyser.acceptKeyword("Sinon")
+			self.suite_instr()   
+			self.lexical_analyser.acceptKeyword("Fin")
+			self.lexical_analyser.acceptKeyword("Sinon")
+
+			# Génération du code pour la fin du cas "Sinon"
+			self.code_generator.write("}")
+
     
 	def retour(self):
 		"""Parse a return statement."""
 		logger.debug("retour()")
 		self.lexical_analyser.acceptKeyword("Renvoyer")
+
+		# Génération du code pour l'instruction de retour
+		self.code_generator.write("return ")
+
 		value_type = self.expression()
 		function_name = self.symbol_table.current_scope
 		entry = self.symbol_table.lookup(function_name, "global")
@@ -662,6 +877,8 @@ class SyntaxAnalyser:
 			raise TypeError(f"Return type '{value_type}' does not match function return type '{type_function}'")
 		logger.debug(f"Return statement in function '{function_name}': {value_type}")
 
+		# Génération du code pour la fin de l'instruction de retour
+		self.code_generator.write(";")
 
 	def identifiant(self) -> str:
 		"""Parse an identifier."""
@@ -682,6 +899,7 @@ class SyntaxAnalyser:
 		if not value and value != 0:
 			logger.debug("No integer value found")
 			raise SyntaxError("Expected an integer")
+		return value
 
 	def flottant(self) -> float:
 		"""Parse a float."""
@@ -750,3 +968,15 @@ class SyntaxAnalyser:
 		if v_type_A == v_type_B and v_type_A in wanted_type:
 			return True
 		return False
+
+	def initialize_code_generator(self):
+		"""Initialize the code generator."""
+		self.code_generator = CodeGenerator("output_code.c")
+
+		str = """#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+"""
+
+		self.code_generator.write(str)
