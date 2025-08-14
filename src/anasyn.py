@@ -63,7 +63,6 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_prototype()
 			self.symbol_table.mode_prototype = False
-			self.symbol_table.save_to_file()
 			self.lexical_analyser.acceptKeyword("Definitions")
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_decla_op()
@@ -581,7 +580,7 @@ class SyntaxAnalyser:
 			value_type_A = value_type
 			self.op_mult()
 			value_type_B = self.exp_mult()
-			if self.verify_types(value_type_A, value_type_B, ["number"]):
+			if not self.verify_types(value_type_A, value_type_B, ["number"]):
 				logger.debug(f"exp_mult() found incompatible types")
 				raise TypeError(f"Incompatible types: {value_type_A} and {value_type_B}")
 			if value_type_A == "flottant" or value_type_B == "flottant":
@@ -701,7 +700,7 @@ class SyntaxAnalyser:
 		# Génération du code pour la fin de l'appel de fonction
 		self.code_generator.write(")")
 
-		entry = self.symbol_table.lookup(name)
+		entry = self.symbol_table.lookup(name, "global")
 		logger.debug(f"Function call: {name}, found: {entry}, scope: {self.symbol_table.current_scope}")
 		if entry is None or entry.role != "function":
 			raise SyntaxError(f"Function '{name}' is not declared or is not a function")
@@ -795,6 +794,11 @@ class SyntaxAnalyser:
 			if entry is None or entry.role != "variable":
 				raise SyntaxError(f"Identifier '{name}' is not declared or is not a variable")
 			value_type = entry.type
+
+			# Génération du code pour la lecture
+			cg_type = self.code_generator.association_keyword("print_" + value_type)
+			self.code_generator.write(f"scanf(\"{cg_type}\", &{name});")
+
 			self.lexical_analyser.acceptSymbol(")")
 		else:
 			raise SyntaxError("Expected an entry or exit (afficher or lire)")
