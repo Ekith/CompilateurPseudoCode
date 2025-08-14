@@ -87,6 +87,9 @@ parser.add_argument("-o", "--output_file", help="Output file for the compiled co
 # -v for verbose output
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output", default=False)
 
+# -d for debug output
+parser.add_argument("-d", "--debug", action="store_true", help="Enable debug output", default=False)
+
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -96,6 +99,9 @@ if __name__ == "__main__":
     else:
         logging.getLogger().setLevel(logging.WARNING)
 
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+
     main(
         input_file=args.input_file,
         symbol_table_file=args.symbol_table,
@@ -103,3 +109,5 @@ if __name__ == "__main__":
         c_code_file=args.c_code,
         output_file=args.output_file
     )
+    
+# pcComp code.pcode -al analex.txt -st symboltabl.txt -c output.c -o output
