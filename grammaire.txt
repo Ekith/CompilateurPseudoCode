@@ -47,8 +47,8 @@
 <specif> ::= <identifiant> : <mode> <type>
             | <identifiant> : <type>
 
-<mode> ::= entree
-        | entree sortie
+<mode> ::= adresse
+        | ε
 
 <type> ::= entier 
         | booleen
