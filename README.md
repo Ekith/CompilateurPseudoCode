@@ -11,6 +11,7 @@ Ce projet est un compilateur pour un langage de pseudo code. Le but du langage e
 - `symboltable.py`: Contient la table des symboles.
 - `main_test.py`: Il permet d'exécuter le processus de compilation sur le fichier `example/input.pcode`. Il génère un fichier `example/output.txt` contenant la sortie de l'analyseur lexical ainsi qu'un fichier `example/symbol_table.txt` pour la table des symboles.
 - `main.py`: Point d'entrée du compilateur.
+- `pcodeCompiler.sh`: Script shell pour exécuter le compilateur.
 
 ## Fonctionnalités
 
@@ -22,6 +23,7 @@ Ce projet est un compilateur pour un langage de pseudo code. Le but du langage e
   - Portée
   - Paramètres (pour les fonctions et procédures)
   - Mode (pour les paramètres des fonctions et procédures)
+- Génération de code: Production de code C à partir du pseudo code puis compilation avec gcc.
 
 ## Utilisation
 
@@ -31,14 +33,24 @@ Pour utiliser le compilateur, il suffit de fournir un fichier contenant du pseud
 ./pcodeCompiler.sh input_file
 ```
 Options :
-- `-o <fichier>` : Spécifie le fichier de sortie.
-- `-st <fichier>` : Spécifie le fichier de la table des symboles.
 - `-al <fichier>` : Spécifie le fichier de sortie de l'analyse lexicale.
+- `-st <fichier>` : Spécifie le fichier de la table des symboles.
+- `-c <fichier>` : Spécifie le fichier de sortie du code C.
+- `-o <fichier>` : Spécifie le fichier de sortie.
+- `-v` : Active le mode verbeux.
+- `-d` : Active le mode débogage. Affiche les informations de l'analyseur syntaxique.
 - `-h` : Affiche l'aide.
+
+Exemple d'utilisation :
+
+```bash
+./pcodeCompiler.sh -al example/output.txt -st example/symbol_table.txt -c example/output.c -o example/output.txt example/input.pcode
+```
 
 ## Exemples
 
 Vous trouverez un exemple de code en pseudo code dans le fichier `example/input.pcode`.
+Vous pourrez executer le script `main_test.py` pour tester le compilateur sur cet exemple.
 Le résultat de l'analyse lexicale sera écrit dans `example/output.txt` et la table des symboles dans `example/symbol_table.txt`.
 
 ## Utilisation des instructions
@@ -130,9 +142,6 @@ Il a été décidé dans ce langage de s'affranchir des opérateurs de comparais
 De même, les mots clés "inf", "infegal", "sup" et "supegal" sont utilisés pour les comparaisons de valeurs numériques.
 
 
-
 ## Fonctionnalité incomplète
 
-- Instructions `lire()` non fonctionnelle
 - Gestion des modes `entrée sortie` des paramètres de fonctions et de procédures
-- Gestion des erreurs et des exceptions
