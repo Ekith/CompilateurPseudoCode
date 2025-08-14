@@ -15,7 +15,7 @@ KEYWORDS  = [ \
     "Programme", "Debut", "Fin", "Procedure", "Fonction", "Variables", "Prototypes", "Definitions",
     "Si", "Sinon", "Alors", "Tant", "que", "Faire",
     "afficher", "lire", "Renvoyer",
-    "entree", "entree sortie",
+    "adresse",
     "entier", "booleen", "flottant", "chaine",
     "Vrai", "Faux",
     "egal", "diff", "inf", "infegal", "sup", "supegal",
