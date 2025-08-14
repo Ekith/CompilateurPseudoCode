@@ -54,7 +54,7 @@
         | booleen
         | flottant
         | chaine
-        | tableau <type> [ <entier> ] // A implementer
+        | tableau de <type> [ <entier> ] // A implementer
 
 <partieDeclaProc> ::= <listeDeclaVar>
 

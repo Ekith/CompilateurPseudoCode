@@ -16,7 +16,7 @@ KEYWORDS  = [ \
     "Si", "Sinon", "Alors", "Tant", "que", "Faire",
     "afficher", "lire", "Renvoyer",
     "adresse",
-    "entier", "booleen", "flottant", "chaine",
+    "entier", "booleen", "flottant", "chaine", "tableau", "de",
     "Vrai", "Faux",
     "egal", "diff", "inf", "infegal", "sup", "supegal",
     "ou", "et", "non", "modulo"
@@ -24,7 +24,7 @@ KEYWORDS  = [ \
 
 
 SYMBOLS = [
-    "->", "=", "+", "-", "*", "/", "(", ")", ",", ";", ":", "."
+    "->", "=", "+", "-", "*", "/", "(", ")", ",", ";", ":", ".", "[", "]"
 ]
 
 class AnaLexException(Exception):
