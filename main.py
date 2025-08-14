@@ -110,4 +110,4 @@ if __name__ == "__main__":
         output_file=args.output_file
     )
     
-# pcComp code.pcode -al analex.txt -st symboltabl.txt -c output.c -o output
+# ./pcodeCompiler.sh code.pcode -al analex.txt -st symboltabl.txt -c output.c -o output
