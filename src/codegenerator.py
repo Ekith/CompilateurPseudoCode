@@ -49,10 +49,10 @@ class CodeGenerator:
     def association_keyword(self, value):
         
         keywords = {
-            "entier": "int",
+            "entier": "long",
             "booleen": "bool",
             "chaine": "char*",
-            "flottant": "float",
+            "flottant": "double",
             "vide" : "void",
             
             "infegal" : "<=",
@@ -69,7 +69,7 @@ class CodeGenerator:
             "entree" : "",
             "entree sortie": "*",
 
-            "print_entier" : "%d",
+            "print_entier" : "%ld",
             "print_booleen" : "%d",
             "print_chaine" : "%s",
             "print_flottant" : "%f"
