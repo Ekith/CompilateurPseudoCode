@@ -94,3 +94,9 @@ class CodeGenerator:
     def execute_file(self):
         os.system(f"{self.output_file}.out")
         os.remove(f"{self.output_file}.out")
+
+    def copy_c_file(self, dest):
+        os.system(f"cp {self.output_file} {dest}")
+
+    def copy_bin_file(self, dest):
+        os.system(f"cp {self.output_file}.out {dest}")

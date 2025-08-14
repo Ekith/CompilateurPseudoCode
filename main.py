@@ -5,13 +5,15 @@ from src.analex import LexicalAnalyser
 from src.anasyn import SyntaxAnalyser
 from src.symboltable import SymbolTable
 
-def main(input_file, symbol_table_file=None, lexical_analysis_file=None, output_file=None):
-    
+def main(input_file, symbol_table_file=None, lexical_analysis_file=None, c_code_file=None, output_file=None):
+
     input_filename = os.path.abspath(input_file)
     if symbol_table_file:
         symbol_table_filename = os.path.abspath(symbol_table_file)
     if lexical_analysis_file:
         lexical_analysis_filename = os.path.abspath(lexical_analysis_file)
+    if c_code_file:
+        c_code_filename = os.path.abspath(c_code_file)
     if output_file:
         output_filename = os.path.abspath(output_file)
 
@@ -51,7 +53,14 @@ def main(input_file, symbol_table_file=None, lexical_analysis_file=None, output_
             with open(symbol_table_filename, 'w') as output_file:
                 output_file.write(str(symbol_table))
 
+        if c_code_file:
+            syntax_analyser.code_generator.copy_c_file(c_code_filename)
+
         syntax_analyser.code_generator.compile_file()
+        
+        if output_file:
+            syntax_analyser.code_generator.copy_bin_file(output_filename)
+        
         syntax_analyser.code_generator.execute_file()
 
     except Exception as e:
@@ -63,11 +72,14 @@ def main(input_file, symbol_table_file=None, lexical_analysis_file=None, output_
 parser = argparse.ArgumentParser(description="Pseudo-code compiler")
 parser.add_argument("input_file", help="Input file containing pseudo code")
 
+# -al to choose the output file for the lexical analyser
+parser.add_argument("-al", "--lexical_analysis", help="Output file for the lexical analyser")
+
 # -st to choose the output file for the symbol table
 parser.add_argument("-st", "--symbol_table", help="Output file for the symbol table")
 
-# -al to choose the output file for the lexical analyser
-parser.add_argument("-al", "--lexical_analysis", help="Output file for the lexical analyser")
+# -c to choose the output file for the c code
+parser.add_argument("-c", "--c_code", help="Output file for the C code")
 
 # -o to choose output file
 parser.add_argument("-o", "--output_file", help="Output file for the compiled code")
@@ -88,5 +100,6 @@ if __name__ == "__main__":
         input_file=args.input_file,
         symbol_table_file=args.symbol_table,
         lexical_analysis_file=args.lexical_analysis,
+        c_code_file=args.c_code,
         output_file=args.output_file
     )
