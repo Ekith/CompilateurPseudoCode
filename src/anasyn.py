@@ -268,11 +268,9 @@ class SyntaxAnalyser:
 		logger.debug("specif()")
 		name = self.identifiant()
 		self.lexical_analyser.acceptSymbol(":")
-		mode = ""
-		if self.lexical_analyser.isKeyword("entree"):
-			mode = self.mode()
+		mode = self.mode()
 		type = self.type()
-		logger.debug(f"Formal specification: {name}, type: {type}, mode: {mode if 'mode' in locals() else 'None'}")
+		logger.debug(f"Formal specification: {name}, type: {type}, mode: {mode}")
 		res = []
 		if self.symbol_table.mode_prototype:
 			self.symbol_table.add_entry(name, type, "variable", None, mode)
@@ -281,20 +279,18 @@ class SyntaxAnalyser:
 		# Génération du code pour la spécification formelle
 		cg_type = self.code_generator.association_keyword(type)
 		cg_mode = self.code_generator.association_keyword(mode)
-		self.code_generator.write(f"{cg_type}{cg_mode} {name}")
+		self.code_generator.write(f"{cg_mode}{cg_type} {name}")
 
 		return res
 
 	def mode(self):
 		"""Parse the mode of a formal specification."""
 		logger.debug("mode()")
-		if self.lexical_analyser.isKeyword("entree"):
-			self.lexical_analyser.acceptKeyword("entree")
-			if self.lexical_analyser.isKeyword("sortie"):
-				self.lexical_analyser.acceptKeyword("sortie")
-				return "entreeSortie"
-			return "entree"
-
+		if self.lexical_analyser.isKeyword("adresse"):
+			self.lexical_analyser.acceptKeyword("adresse")
+			return "adresse"
+		else:
+			return ""
     
 	def type(self):
 		"""Parse the type of a formal specification."""
