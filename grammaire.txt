@@ -54,6 +54,7 @@
         | booleen
         | flottant
         | chaine
+        | tableau <type> [ <entier> ] // A implementer
 
 <partieDeclaProc> ::= <listeDeclaVar>
 
@@ -131,12 +132,14 @@
             | ( <expression> ) 
             | <identifiant> 
             | <appelFonct>
+            | <valeurTableau> // A implementer
 
 <appelFonct> ::= <identifiant> ( <listeParam> ) 
                 | <identifiant> ( )
 
 <valeur> ::= <entier> 
             | <valBool>
+            | <flottant>
             | <chaine>
 
 <valBool> ::= Vrai 
@@ -174,3 +177,30 @@
 
 <chaine> ::= " <listeLettreOuChiffre> "
         | ' <listeLettreOuChiffre> '
+
+// A implementer
+
+<listeEntier> ::= <entier>, <listeEntier>
+                | <entier>
+
+<listeBooleen> ::= <booleen> , <listeBooleen>
+                | <booleen>
+
+<listeChaine> ::= <chaine> , <listeChaine>
+                | <chaine>
+
+<listeFlottant> ::= <flottant> , <listeFlottant>
+                | <flottant>
+        
+<listeTableau> ::= <tableau> , <listeTableau>
+                | <tableau>
+
+<listeElement> ::= <listeEntier>
+                | <listeBooleen>
+                | <listeFlottant>
+                | <listeChaine>
+
+<tableau> ::= [ <listeElement> ]
+        | [ ]
+
+<valeurTableau> ::= <identifiant> [ <entier> ]
