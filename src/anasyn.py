@@ -63,7 +63,6 @@ class SyntaxAnalyser:
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_prototype()
 			self.symbol_table.mode_prototype = False
-			self.symbol_table.save_to_file()
 			self.lexical_analyser.acceptKeyword("Definitions")
 			self.lexical_analyser.acceptSymbol(":")
 			self.liste_decla_op()

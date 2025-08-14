@@ -90,7 +90,7 @@ class CodeGenerator:
     def compile_file(self):
         os.system(f"gcc {self.output_file} -o {self.output_file}.out -Wall")
         os.remove(self.output_file)
-    
+
     def execute_file(self):
         os.system(f"{self.output_file}.out")
         os.remove(f"{self.output_file}.out")
