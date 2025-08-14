@@ -50,7 +50,7 @@ class SyntaxAnalyser:
 		# Génération de code pour la fin du programme
 		self.code_generator.write("return 0;")
 		self.code_generator.write("}")
-  
+
 		self.lexical_analyser.acceptKeyword("Fin")
   
 	def partie_decla(self):
