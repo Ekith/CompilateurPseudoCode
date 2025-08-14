@@ -65,9 +65,8 @@ class CodeGenerator:
             "ou" : "||",
             "non" : "!",
             "modulo" : "%",
-            
-            "entree" : "",
-            "entree sortie": "*",
+
+            "adresse" : "", # "&"
 
             "print_entier" : "%ld",
             "print_booleen" : "%d",
